@@ -1,4 +1,5 @@
 using Catalog.Application.Prices.DTOs.Requests;
+using Catalog.Domain.Enums;
 using FluentValidation;
 
 namespace Catalog.Application.Prices.Validators;
@@ -28,8 +29,15 @@ public class CreatePriceRequestValidator : AbstractValidator<CreatePriceRequest>
             .OverridePropertyName("frequency");;
 
         RuleFor(x => x.Cycle)
-            .NotEmpty().WithMessage("O campo {PropertyName} precisa ser fornecido")
-            .IsInEnum().WithMessage("O campo {PropertyName} é inválido")
-            .OverridePropertyName("cycle");;
+            .IsInEnum().When(x => x.Cycle.HasValue).WithMessage("O campo {PropertyName} é inválido")
+            .OverridePropertyName("cycle");
+
+        When(x => x.Frequency == PriceFrequency.Recurring, () =>
+        {
+            RuleFor(x => x.Cycle)
+                .NotNull().WithMessage("O campo {PropertyName} precisa ser fornecido quando a frequência for recorrente")
+                .IsInEnum().WithMessage("O campo {PropertyName} é inválido")
+                .OverridePropertyName("cycle");
+        });
     }
 }
