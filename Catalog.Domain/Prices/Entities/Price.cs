@@ -13,7 +13,9 @@ public class Price
     public string ProductId { get; private set; }
     public string UserId { get; private set; }
     public PriceFrequency Frequency { get; private set; }
-    public PriceCycle Cycle { get; private set; }
+    public PriceCycle? Cycle { get; private set; }
+    public bool LiveMode { get; private set; }
+    public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
     
@@ -24,7 +26,7 @@ public class Price
         decimal amount, 
         string currency, 
         PriceFrequency frequency, 
-        PriceCycle cycle, 
+        PriceCycle? cycle, 
         string productId, 
         string userId
     )
@@ -37,6 +39,8 @@ public class Price
         Cycle = cycle;
         UserId = userId;
         ProductId = productId;
+        LiveMode = true;
+        IsActive = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = null;
     }
@@ -50,6 +54,8 @@ public class Price
         PriceFrequency frequency, 
         PriceCycle cycle, 
         string userId,
+        bool liveMode,
+        bool isActive,
         DateTime createdAt, 
         DateTime? updatedAt = null
     )
@@ -62,6 +68,8 @@ public class Price
         Frequency = frequency;
         Cycle = cycle;
         UserId = userId;
+        LiveMode = liveMode;
+        IsActive = true;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
     }
