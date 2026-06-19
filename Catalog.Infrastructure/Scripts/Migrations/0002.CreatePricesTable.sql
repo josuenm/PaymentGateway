@@ -6,10 +6,12 @@ CREATE TABLE Prices (
     Name VARCHAR(255) NOT NULL, 
     Currency VARCHAR(3) NOT NULL,
     Frequency TINYINT NOT NULL,
-    Cycle TINYINT NOT NULL,
+    Cycle TINYINT NULL,
     AmountInCents BIGINT NOT NULL, 
     ProductId VARCHAR(50) NOT NULL,
     UserId VARCHAR(50) NOT NULL,
+    IsActive BIT NOT NULL,
+    LiveMode BIT NOT NULL,
     CreatedAt DATETIME2 NOT NULL, 
     UpdatedAt DATETIME2 NULL,
 
