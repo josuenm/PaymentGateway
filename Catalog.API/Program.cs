@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Catalog.Application.Products.Interfaces;
 using Catalog.Application.Products.Services;
 using Catalog.Application.Products.Validators;
+using Catalog.Domain.Prices.Repositories;
 using Catalog.Domain.Products.Repositories;
 using Catalog.Infrastructure.Repositories;
 using FluentValidation;
@@ -33,6 +34,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssembly(typeof(CreateProductRequestValidator).Assembly);
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IPriceRepository, PriceRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
