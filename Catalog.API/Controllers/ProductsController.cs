@@ -31,15 +31,23 @@ public class ProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateAsync(
         [FromHeader(Name = "X-User-Id")] string userId, 
-        CreateProductRequest request
+        [FromBody] CreateProductRequest? request
     )
     {
+        if (request is null)
+        {
+            return Result<object>
+                .Failure(
+                    "O corpo da requisição (JSON) está malformado ou contém tipos de dados inválidos (como Enums incorretos).", 
+                    ErrorType.Validation)
+                .ToActionResult();
+        }
+        
         var validationResult = await _createProductRequestValidator.ValidateAsync(request);
 
         if (!validationResult.IsValid)
             return Result<object>
                 .Failure(
-                    
                     "1 ou mais campos inválidos", 
                     ErrorType.Validation, 
                     validationResult.Errors)
