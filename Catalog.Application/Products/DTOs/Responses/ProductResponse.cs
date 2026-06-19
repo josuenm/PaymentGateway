@@ -1,3 +1,5 @@
+using Catalog.Application.Prices.DTOs.Responses;
+
 namespace Catalog.Application.Products.DTOs.Responses;
 
 public record ProductResponse(
@@ -6,7 +8,8 @@ public record ProductResponse(
     string? Description,
     bool LiveMode,
     bool IsActive,
-    string UserId, 
+    string UserId,
+    IEnumerable<PriceResponse> Prices,
     object? Metadata, 
     DateTime CreatedAt, 
     DateTime? UpdatedAt = null
