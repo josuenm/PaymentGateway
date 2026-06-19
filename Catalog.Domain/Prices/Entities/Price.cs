@@ -13,18 +13,28 @@ public class Price
     public string ProductId { get; private set; }
     public string UserId { get; private set; }
     public PriceFrequency Frequency { get; private set; }
+    public PriceCycle Cycle { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
     
     public Product? Product { get; private set; }
 
-    public Price(string name, decimal amount, string currency, PriceFrequency frequency, string productId, string userId)
+    public Price(
+        string name, 
+        decimal amount, 
+        string currency, 
+        PriceFrequency frequency, 
+        PriceCycle cycle, 
+        string productId, 
+        string userId
+    )
     {
         Id = IdGenerator.Generate("pri");
         Name = name;
         Amount = amount;
         Currency = currency;
         Frequency = frequency;
+        Cycle = cycle;
         UserId = userId;
         ProductId = productId;
         CreatedAt = DateTime.UtcNow;
@@ -38,6 +48,7 @@ public class Price
         string currency, 
         string productId,
         PriceFrequency frequency, 
+        PriceCycle cycle, 
         string userId,
         DateTime createdAt, 
         DateTime? updatedAt = null
@@ -49,6 +60,7 @@ public class Price
         Currency = currency;
         ProductId = productId;
         Frequency = frequency;
+        Cycle = cycle;
         UserId = userId;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;

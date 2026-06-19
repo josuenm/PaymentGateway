@@ -26,5 +26,10 @@ public class CreatePriceRequestValidator : AbstractValidator<CreatePriceRequest>
             .NotEmpty().WithMessage("O campo {PropertyName} precisa ser fornecido")
             .IsInEnum().WithMessage("O campo {PropertyName} é inválido")
             .OverridePropertyName("frequency");;
+
+        RuleFor(x => x.Cycle)
+            .NotEmpty().WithMessage("O campo {PropertyName} precisa ser fornecido")
+            .IsInEnum().WithMessage("O campo {PropertyName} é inválido")
+            .OverridePropertyName("cycle");;
     }
 }

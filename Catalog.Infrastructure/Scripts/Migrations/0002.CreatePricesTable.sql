@@ -6,6 +6,7 @@ CREATE TABLE Prices (
     Name VARCHAR(255) NOT NULL, 
     Currency VARCHAR(3) NOT NULL,
     Frequency TINYINT NOT NULL,
+    Cycle TINYINT NOT NULL,
     AmountInCents BIGINT NOT NULL, 
     ProductId VARCHAR(50) NOT NULL,
     UserId VARCHAR(50) NOT NULL,

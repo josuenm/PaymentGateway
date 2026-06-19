@@ -6,5 +6,6 @@ public record CreatePriceRequest(
     string Name, 
     decimal Amount,
     string Currency, 
-    PriceFrequency Frequency
+    PriceFrequency Frequency,
+    PriceCycle Cycle
 );
