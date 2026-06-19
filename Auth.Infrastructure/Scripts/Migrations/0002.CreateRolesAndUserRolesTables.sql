@@ -1,0 +1,21 @@
+USE PaymentGatewayAuth;
+GO
+
+CREATE TABLE Roles (
+    Id VARCHAR(50) NOT NULL,
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    
+    CONSTRAINT PK_Roles PRIMARY KEY (Id)
+);
+GO
+
+CREATE TABLE UserRoles (
+   UserId VARCHAR(50) NOT NULL,
+   RoleId VARCHAR(50) NOT NULL,
+    
+   PRIMARY KEY (UserId, RoleId),
+
+   CONSTRAINT FK_UserRoles_Users FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE,
+   CONSTRAINT FK_UserRoles_Roles FOREIGN KEY (RoleId) REFERENCES Roles(Id) ON DELETE CASCADE,
+);
+GO

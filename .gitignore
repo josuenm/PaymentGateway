@@ -1,0 +1,25 @@
+## Visual Studio / Rider - Pastas de Compilação e Cache
+**/bin/
+**/obj/
+[Content_Types].xml
+_ReSharper*/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## JetBrains Rider - Arquivos da IDE
+.idea/
+*.sln.iml
+
+## Arquivos do Sistema Operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+## Configurações locais (Evita subir strings de conexão locais se usar segredos)
+*.local.json

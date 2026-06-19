@@ -1,0 +1,16 @@
+USE PaymentGatewayAuth;
+GO
+
+CREATE TABLE RefreshTokens(
+    Id VARCHAR(50) NOT NULL,
+    Token VARCHAR(255) NOT NULL UNIQUE,
+    UserId VARCHAR(50) NOT NULL,
+    ExpiresAt DATETIME2 NOT NULL,
+    IsRevoked BIT NOT NULL DEFAULT 0,
+    CreatedAt DATETIME2 NOT NULL,
+    
+    CONSTRAINT PK_RefreshTokens PRIMARY KEY (Id),
+    
+    CONSTRAINT FK_RefreshTokens_Users FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
+GO

@@ -1,0 +1,14 @@
+USE PaymentGatewayAuth;
+GO
+
+CREATE TABLE Users (
+    Id VARCHAR(50) NOT NULL,
+    Name VARCHAR(150) NOT NULL,
+    Email VARCHAR(150) NOT NULL,
+    Password VARCHAR(255) NOT NULL, 
+    CreatedAt DATETIME2 NOT NULL,
+    UpdatedAt DATETIME2 NULL,
+    
+    CONSTRAINT PK_Users PRIMARY KEY (Id)
+);
+GO
