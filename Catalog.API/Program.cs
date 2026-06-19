@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Asp.Versioning;
 using Catalog.Application.Products.Interfaces;
 using Catalog.Application.Products.Services;
@@ -25,6 +26,12 @@ builder.Services.AddApiVersioning(options =>
     });
 
 builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
         options.SuppressModelStateInvalidFilter = true;
