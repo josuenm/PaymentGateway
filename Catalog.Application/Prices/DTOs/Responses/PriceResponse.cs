@@ -7,6 +7,7 @@ public record PriceResponse(
     string Name, 
     string Currency, 
     decimal Amount,
+    bool LiveMode, 
     bool IsActive,
     string ProductId, 
     string UserId,
