@@ -1,9 +1,36 @@
 using System.Text.Json;
 using Asp.Versioning;
+using Billing.Infrastructure.Messaging.Consumers;
+using MassTransit;
 using Shared.Infrastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<ProductCreatedConsumer>();
+    
+    if (builder.Environment.IsDevelopment())
+    {
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host("localhost", "/", h =>
+            {
+                h.Username("guest");
+                h.Password("guest");
+            });
+            cfg.ConfigureEndpoints(context); 
+        });
+    }
+    else
+    {
+        x.UsingAzureServiceBus((context, cfg) =>
+        {
+            cfg.Host(builder.Configuration.GetConnectionString("AzureServiceBus"));
+            cfg.ConfigureEndpoints(context);
+        });
+    }
+});
 // builder.Configuration.RunMigrations(typeof().Assembly);
 builder.Services.AddApiVersioning(options =>
     {

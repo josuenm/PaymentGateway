@@ -7,11 +7,35 @@ using Catalog.Domain.Prices.Repositories;
 using Catalog.Domain.Products.Repositories;
 using Catalog.Infrastructure.Repositories;
 using FluentValidation;
+using MassTransit;
 using Shared.Infrastructure.Configurations;
 using Shared.Infrastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMassTransit(x =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host("localhost", "/", h =>
+            {
+                h.Username("guest");
+                h.Password("guest");
+            });
+            cfg.ConfigureEndpoints(context); 
+        });
+    }
+    else
+    {
+        x.UsingAzureServiceBus((context, cfg) =>
+        {
+            cfg.Host(builder.Configuration.GetConnectionString("AzureServiceBus"));
+            cfg.ConfigureEndpoints(context);
+        });
+    }
+});
 builder.Configuration.RunMigrations(typeof(ProductRepository).Assembly);
 builder.Services.AddApiVersioning(options =>
     {
