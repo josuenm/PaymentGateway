@@ -9,6 +9,12 @@
       - "1433:1433"
     volumes:
       - mssql_global_data:/var/opt/mssql
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: paymentgateway_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
 volumes:
   mssql_global_data:
