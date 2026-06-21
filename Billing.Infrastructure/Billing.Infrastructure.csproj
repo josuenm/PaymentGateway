@@ -7,11 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Billing.Domain\Billing.Domain.csproj" />
+      <ProjectReference Include="..\Shared.Infrastructure\Shared.Infrastructure.csproj" />
       <ProjectReference Include="..\Shared.Kernel\Shared.Kernel.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="MassTransit" Version="9.1.2" />
     </ItemGroup>
 
 </Project>
