@@ -8,7 +8,7 @@ public class Price
 {
     public string Id { get; private set; }
     public string Name { get; private set; }
-    public decimal Amount { get; private set; }
+    public long AmountInCents { get; private set; }
     public string Currency { get; private set; }
     public string ProductId { get; private set; }
     public string UserId { get; private set; }
@@ -33,7 +33,7 @@ public class Price
     {
         Id = IdGenerator.Generate("pri");
         Name = name;
-        Amount = amount;
+        AmountInCents = (long)Math.Round(amount * 100, MidpointRounding.AwayFromZero);
         Currency = currency;
         Frequency = frequency;
         Cycle = cycle;
@@ -48,7 +48,7 @@ public class Price
     public Price(
         string id, 
         string name,
-        decimal amount, 
+        long amountInCents, 
         string currency, 
         string productId,
         PriceFrequency frequency, 
@@ -62,7 +62,7 @@ public class Price
     {
         Id = id;
         Name = name;
-        Amount = amount;
+        AmountInCents = amountInCents;
         Currency = currency;
         ProductId = productId;
         Frequency = frequency;
