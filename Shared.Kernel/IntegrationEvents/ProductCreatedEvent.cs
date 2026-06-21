@@ -7,15 +7,6 @@ public record ProductCreatedEvent(
     bool LiveMode, 
     bool IsActive, 
     string UserId,
-    IEnumerable<IntegrationPriceDto> Prices, 
+    IEnumerable<PriceCreatedEvent> Prices, 
     object? Metadata
-);
-
-public record IntegrationPriceDto(
-    string Id, 
-    string Name, 
-    decimal AmountInCents, 
-    string Currency,
-    string Frequency,
-    string? Cycle
 );
