@@ -1,7 +1,13 @@
 using System.Text.Json;
 using Asp.Versioning;
-using Billing.Infrastructure.Messaging.Consumers;
+using Billing.API.Messaging.Consumers;
+using Billing.Application.ProductReplica.Interfaces;
+using Billing.Application.ProductReplicas.Services;
+using Billing.Domain.PriceReplicas;
+using Billing.Domain.ProductReplicas;
+using Billing.Infrastructure.Repositories;
 using MassTransit;
+using Shared.Infrastructure.Configurations;
 using Shared.Infrastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +37,7 @@ builder.Services.AddMassTransit(x =>
         });
     }
 });
-// builder.Configuration.RunMigrations(typeof().Assembly);
+builder.Configuration.RunMigrations(typeof(ProductReplicaRepository).Assembly);
 builder.Services.AddApiVersioning(options =>
     {
         options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -58,6 +64,9 @@ builder.Services.AddControllers()
         options.SuppressModelStateInvalidFilter = true;
     });
 builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddScoped<IProductReplicaService, ProductReplicaService>();
+builder.Services.AddScoped<IProductReplicaRepository, ProductReplicaRepository>();
+builder.Services.AddScoped<IPriceReplicaRepository, PriceReplicaRepository>();
 
 var app = builder.Build();
 
