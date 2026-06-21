@@ -61,14 +61,16 @@ public class ProductService : IProductService
             product.LiveMode, 
             product.IsActive,
             product.UserId,
-            product.Prices != null && product.Prices.Any() ? product.Prices.Select(price => new IntegrationPriceDto(
+            product.Prices != null && product.Prices.Any() ? product.Prices.Select(price => new PriceCreatedEvent(
                 price.Id, 
                 price.Name, 
-                price.Amount, 
+                price.AmountInCents, 
                 price.Currency, 
+                price.IsActive, 
+                price.LiveMode, 
                 price.Frequency.ToString(), 
                 price.Cycle?.ToString() ?? null
-            )) : new List<IntegrationPriceDto>(),
+            )) : new List<PriceCreatedEvent>(),
             product.CreatedAt
         ));
 
@@ -83,7 +85,7 @@ public class ProductService : IProductService
                 item.Id, 
                 item.Name, 
                 item.Currency, 
-                item.Amount,
+                item.AmountInCents,
                 item.LiveMode,
                 item.IsActive,
                 item.ProductId, 
@@ -117,7 +119,7 @@ public class ProductService : IProductService
                 item.Id, 
                 item.Name, 
                 item.Currency, 
-                item.Amount,
+                item.AmountInCents,
                 item.LiveMode,
                 item.IsActive,
                 item.ProductId, 
@@ -148,7 +150,7 @@ public class ProductService : IProductService
                 price.Id, 
                 price.Name, 
                 price.Currency, 
-                price.Amount,
+                price.AmountInCents,
                 price.LiveMode,
                 price.IsActive,
                 price.ProductId, 
