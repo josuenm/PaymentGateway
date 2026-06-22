@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Billing.Application.PriceReplicas.DTOs.Requests;
 using Billing.Application.ProductReplica.Interfaces;
 using Billing.Application.ProductReplicas.DTOs.Requests;
@@ -44,19 +45,29 @@ public class ProductCreatedConsumer : IConsumer<ProductCreatedEvent>
                     cycle
                 ));
             }
-
-            var productReplica = new CreateProductReplicaRequest(
-                message.Id, 
-                message.Name, 
-                message.Description, 
-                message.LiveMode, 
-                message.IsActive,
-                message.UserId,
-                pricesToReplica, 
-                message.Metadata
-            );
-            
-            await _productReplicaService.CreateAsync(productReplica);
         }
+
+        object? productMetadata = null;
+
+        if (message.Metadata is JsonElement json)
+        {
+            if (json.ValueKind != JsonValueKind.Null)
+            {
+                productMetadata = JsonSerializer.Deserialize<object>(json.GetRawText());
+            }
+        }
+        
+        var productReplica = new CreateProductReplicaRequest(
+            message.Id, 
+            message.Name, 
+            message.Description, 
+            message.LiveMode, 
+            message.IsActive,
+            message.UserId,
+            pricesToReplica, 
+            productMetadata
+        );
+            
+        await _productReplicaService.CreateAsync(productReplica);
     }
 }
