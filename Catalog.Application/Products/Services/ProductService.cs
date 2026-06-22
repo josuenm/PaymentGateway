@@ -63,6 +63,7 @@ public class ProductService : IProductService
             product.Prices != null && product.Prices.Any() ? product.Prices.Select(price => new PriceCreatedEvent(
                 price.Id, 
                 price.Name, 
+                userId,
                 price.AmountInCents, 
                 price.Currency, 
                 price.IsActive, 
