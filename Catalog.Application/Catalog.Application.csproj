@@ -13,7 +13,7 @@
 
     <ItemGroup>
       <PackageReference Include="FluentValidation" Version="12.1.1" />
-      <PackageReference Include="MassTransit.Abstractions" Version="9.1.2" />
+      <PackageReference Include="MassTransit.Abstractions" Version="8.5.10" />
     </ItemGroup>
 
 </Project>
