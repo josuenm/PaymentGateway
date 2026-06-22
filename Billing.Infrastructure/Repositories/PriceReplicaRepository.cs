@@ -22,7 +22,7 @@ public class PriceReplicaRepository : IPriceReplicaRepository
     {
         const string sql = 
 @"
-INSERT INTO PricesReplicas
+INSERT INTO PriceReplicas
     (Id, Name, AmountInCents, Currency, Frequency, ProductReplicaId, Cycle, IsActive, LiveMode)
 VALUES (@Id, @Name, @AmountInCents, @Currency, @Frequency, @ProductReplicaId, @Cycle, @IsActive, @LiveMode);
 ";
