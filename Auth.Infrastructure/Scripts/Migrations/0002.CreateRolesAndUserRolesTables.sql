@@ -1,4 +1,4 @@
-USE PaymentGatewayAuth;
+USE PaymentGateway_Auth;
 GO
 
 CREATE TABLE Roles (

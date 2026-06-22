@@ -1,4 +1,4 @@
-USE PaymentGatewayAuth;
+USE PaymentGateway_Auth;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM Roles WHERE Id = 'rol_3xM9vL2kZ8pW4tRb')

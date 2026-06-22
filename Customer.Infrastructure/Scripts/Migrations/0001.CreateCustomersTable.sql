@@ -1,4 +1,4 @@
-USE PaymentGatewayCustomers;
+USE PaymentGateway_Customer;
 GO
 
 CREATE TABLE Customers (

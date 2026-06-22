@@ -1,4 +1,4 @@
-USE PaymentGatewayCatalog;
+USE PaymentGateway_Catalog;
 GO
 
 CREATE TABLE Products (

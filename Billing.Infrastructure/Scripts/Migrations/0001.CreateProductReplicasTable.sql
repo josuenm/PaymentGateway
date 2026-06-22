@@ -1,4 +1,4 @@
-USE PaymentGatewayBilling;
+USE PaymentGateway_Billing;
 GO
 
 CREATE TABLE ProductReplicas(
