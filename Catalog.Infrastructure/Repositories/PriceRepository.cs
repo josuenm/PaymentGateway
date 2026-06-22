@@ -25,7 +25,7 @@ public class PriceRepository : IPriceRepository
         const string sql = 
             @"
 INSERT INTO Prices (Id, Name, AmountInCents, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
-VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
+VALUES (@Id, @Name, @AmountInCents, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
 ";
         
         try
@@ -47,7 +47,7 @@ VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId,
         const string sql = 
 @"
 INSERT INTO Prices (Id, Name, AmountInCents, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
-VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
+VALUES (@Id, @Name, @AmountInCents, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
 ";
         
         try
@@ -71,7 +71,7 @@ VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId,
 SELECT 
     Id,
     Name, 
-    Amount, 
+    AmountInCents, 
     Currency, 
     Frequency, 
     Cycle, 
