@@ -22,7 +22,7 @@ public class ProductReplicaRepository : IProductReplicaRepository
 @"
 INSERT INTO ProductReplicas 
     (Id, Name, Description, Metadata, UserId, IsActive, LiveMode)
-VALUES (@Id, @Name, @Description, @Metadata, @UserId, @LiveMode);
+VALUES (@Id, @Name, @Description, @Metadata, @UserId, @IsActive, @LiveMode);
 ";
         
         using var connection = _context.CreateConnection();
