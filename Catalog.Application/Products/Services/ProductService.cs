@@ -5,7 +5,6 @@ using Catalog.Application.Products.Interfaces;
 using Catalog.Domain.Prices.Entities;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Repositories;
-using Customers.Application.Customers.DTOs.Responses;
 using MassTransit;
 using Shared.IntegrationEvents;
 using Shared.Kernel.Results;

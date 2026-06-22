@@ -1,4 +1,4 @@
-namespace Customers.Application.Customers.DTOs.Responses;
+namespace Catalog.Application.Products.DTOs.Responses;
 
 public record PagedResponse<T>(
     IEnumerable<T> Items,
