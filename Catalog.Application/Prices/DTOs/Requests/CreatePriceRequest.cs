@@ -4,7 +4,7 @@ namespace Catalog.Application.Prices.DTOs.Requests;
 
 public record CreatePriceRequest(
     string Name, 
-    decimal Amount,
+    long Amount,
     string Currency, 
     PriceFrequency Frequency,
     PriceCycle? Cycle
