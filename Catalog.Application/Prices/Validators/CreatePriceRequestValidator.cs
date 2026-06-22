@@ -1,5 +1,5 @@
 using Catalog.Application.Prices.DTOs.Requests;
-using Catalog.Domain.Enums;
+using Catalog.Domain.Prices.Enums;
 using FluentValidation;
 
 namespace Catalog.Application.Prices.Validators;

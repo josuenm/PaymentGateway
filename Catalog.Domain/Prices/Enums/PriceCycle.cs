@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Catalog.Domain.Enums;
+namespace Catalog.Domain.Prices.Enums;
 
 public enum PriceCycle : byte
 {

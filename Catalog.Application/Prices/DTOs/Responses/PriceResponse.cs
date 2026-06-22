@@ -1,4 +1,4 @@
-using Catalog.Domain.Enums;
+using Catalog.Domain.Prices.Enums;
 
 namespace Catalog.Application.Prices.DTOs.Responses;
 

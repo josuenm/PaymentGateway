@@ -1,4 +1,4 @@
-using Catalog.Domain.Enums;
+using Catalog.Domain.Prices.Enums;
 using Catalog.Domain.Products.Entities;
 using Shared.Kernel.Utils;
 
