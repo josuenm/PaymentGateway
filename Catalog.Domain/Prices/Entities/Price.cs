@@ -23,7 +23,7 @@ public class Price
 
     public Price(
         string name, 
-        decimal amount, 
+        long amount, 
         string currency, 
         PriceFrequency frequency, 
         PriceCycle? cycle, 
@@ -33,7 +33,7 @@ public class Price
     {
         Id = IdGenerator.Generate("pri");
         Name = name;
-        AmountInCents = (long)Math.Round(amount * 100, MidpointRounding.AwayFromZero);
+        AmountInCents = amount;
         Currency = currency;
         Frequency = frequency;
         Cycle = cycle;
