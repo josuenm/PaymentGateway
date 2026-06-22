@@ -71,7 +71,7 @@ public class ProductService : IProductService
                 price.Frequency.ToString(), 
                 price.Cycle?.ToString() ?? null
             )) : new List<PriceCreatedEvent>(),
-            product.CreatedAt
+            product.Metadata
         ));
 
         return Result<ProductResponse>.Created(new ProductResponse(
