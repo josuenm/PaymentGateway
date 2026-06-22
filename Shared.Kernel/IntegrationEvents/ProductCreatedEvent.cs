@@ -8,5 +8,5 @@ public record ProductCreatedEvent(
     bool IsActive, 
     string UserId,
     IEnumerable<PriceCreatedEvent> Prices, 
-    object? Metadata
+    object? Metadata = null
 );
