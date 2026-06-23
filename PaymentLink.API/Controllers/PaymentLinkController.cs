@@ -1,8 +1,10 @@
 using Asp.Versioning;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using PaymentLink.Application.PaymentLinks.DTOs.Requests;
 using PaymentLink.Application.PaymentLinks.Interfaces;
 using Shared.Extensions;
+using Shared.Kernel.Results;
 
 namespace PaymentLink.API.Controllers;
 
@@ -12,10 +14,16 @@ namespace PaymentLink.API.Controllers;
 public class PaymentLinkController : ControllerBase
 {
     private readonly IPaymentLinkService _paymentLinkService;
+    
+    private readonly IValidator<CreatePaymentLink> _createPaymentLinkValidator;
 
-    public PaymentLinkController(IPaymentLinkService paymentLinkService)
+    public PaymentLinkController(
+        IPaymentLinkService paymentLinkService, 
+        IValidator<CreatePaymentLink> createPaymentLinkValidator
+    )
     {
         _paymentLinkService = paymentLinkService;
+        _createPaymentLinkValidator = createPaymentLinkValidator;
     }
 
     [HttpPost]
@@ -24,6 +32,19 @@ public class PaymentLinkController : ControllerBase
         [FromHeader(Name = "X-User-Id")] string userId
     )
     {
+        var validationResult = await _createPaymentLinkValidator.ValidateAsync(request);
+
+        if (!validationResult.IsValid)
+        {
+            return Result<object>
+                .Failure(
+                    "1 ou mais campos inválidos", 
+                    ErrorType.Validation, 
+                    validationResult.Errors
+                )
+                .ToActionResult();
+        }
+        
         var result = await _paymentLinkService.CreateAsync(request, userId);
         return result.ToActionResult();
     }
