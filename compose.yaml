@@ -1,6 +1,6 @@
 ﻿services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/azure-sql-edge:latest
     container_name: gateway-payment-sqlserver
     environment:
       ACCEPT_EULA: "Y"
@@ -10,7 +10,7 @@
     volumes:
       - mssql_global_data:/var/opt/mssql
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management-alpine
     container_name: paymentgateway_rabbitmq
     ports:
       - "5672:5672"
