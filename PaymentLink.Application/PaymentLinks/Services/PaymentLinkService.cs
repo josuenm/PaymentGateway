@@ -84,4 +84,22 @@ public class PaymentLinkService : IPaymentLinkService
             paymentLink.UpdatedAt
         ));
     }
+
+    public async Task<Result<InternalPaymentLinkResponse>> GetInternalByIdAsync(string id)
+    {
+        var paymentLink = await _paymentLinkRepository.GetByIdAsync(id, true);
+
+        if (paymentLink == null)
+        {
+            return Result<InternalPaymentLinkResponse>
+                .Failure("Link de pagamento não encontrado", ErrorType.NotFound);
+        }
+
+        return Result<InternalPaymentLinkResponse>.Ok(new InternalPaymentLinkResponse(
+            paymentLink.IsActive, 
+            paymentLink.Items.Any()
+                ? paymentLink.Items.Select(item => new InternalPaymentLinkItemResponse(item.PriceId, item.Quantity))
+                : new List<InternalPaymentLinkItemResponse>()
+        ));
+    }
 }
