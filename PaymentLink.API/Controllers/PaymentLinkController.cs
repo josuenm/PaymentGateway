@@ -48,4 +48,11 @@ public class PaymentLinkController : ControllerBase
         var result = await _paymentLinkService.CreateAsync(request, userId);
         return result.ToActionResult();
     }
+
+    [HttpGet("/internal/{id}")]
+    public async Task<IActionResult> GetInternalPaymentLinkAsync(string id)
+    {
+        var result = await _paymentLinkService.GetInternalByIdAsync(id);
+        return result.ToActionResult();
+    }
 }
