@@ -11,9 +11,3 @@ public record PaymentLinkResponse(
     DateTime CreatedAt,
     DateTime? UpdatedAt
 );
-
-public record PaymentLinkItemResponse(
-    string Id,
-    string PriceId, 
-    int Quantity
-);
