@@ -46,7 +46,7 @@ public class ProductService : IProductService
                 item.Cycle, 
                 product.Id, 
                 userId
-            ));
+            )).ToList();
             
             product.SetPrices(prices);
         }
