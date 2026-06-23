@@ -52,4 +52,33 @@ VALUES (@Id, @Methods, @UserId, @LiveMode, @IsActive, @CreatedAt)
         
         return paymentLink;
     }
+
+    public async Task<PaymentLinkEntity?> GetByIdAsync(string id, bool includeItems = false)
+    {
+        const string sql = 
+@"
+SELECT * FROM PaymentLinks WHERE Id = @Id;
+    
+IF (@IncludeItems = 1)
+BEGIN
+    SELECT * FROM PaymentLinkItems WHERE PaymentLinkId = @Id;    
+END
+";
+
+        var parameters = new { Id = id, IncludeItems = includeItems ? 1 : 9 };
+        
+        using var connection = _context.CreateConnection();
+        
+        await using var multi = await connection.QueryMultipleAsync(sql, parameters);
+
+        var paymentLink = multi.ReadFirstOrDefault<PaymentLinkEntity>();
+
+        if (paymentLink != null)
+        {
+            var items = await multi.ReadAsync<PaymentLinkItem>();
+            paymentLink.SetItems(items);
+        }
+
+        return paymentLink;
+    }
 }
