@@ -44,11 +44,15 @@ public class Result<TData>
         Error = new ErrorResult(message)
     };
     
-    public static Result<TData> BadRequest(string message) => new()
+    public static Result<TData> BadRequest(
+        string message, 
+        Dictionary<string, IEnumerable<string>>? errorDetails = null, 
+        string? traceId = null
+    ) => new()
     {
         Success = false,
         StatusCode = 400,
-        Error = new ErrorResult(message)
+        Error = new ErrorResult(message, errorDetails, traceId)
     };
 
     public static Result<TData> Unauthorized(string message) => new()
