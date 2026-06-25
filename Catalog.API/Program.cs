@@ -1,5 +1,7 @@
 using System.Text.Json;
 using Asp.Versioning;
+using Catalog.Application.Prices.Interfaces;
+using Catalog.Application.Prices.Services;
 using Catalog.Application.Products.Interfaces;
 using Catalog.Application.Products.Services;
 using Catalog.Application.Products.Validators;
@@ -68,6 +70,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssembly(typeof(CreateProductRequestValidator).Assembly);
 builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddScoped<IPriceService, PriceService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IPriceRepository, PriceRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
