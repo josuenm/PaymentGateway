@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Asp.Versioning;
 using Catalog.Application.Products.DTOs.Requests;
 using Catalog.Application.Products.Interfaces;
@@ -32,20 +33,22 @@ public class ProductsController : ControllerBase
         [FromHeader(Name = "X-User-Id")] string userId, 
         [FromBody] CreateProductRequest? request
     )
-    {
-        if (request is null)
-        {
-            return Result<object>
-                .BadRequest("O corpo da requisição (JSON) está malformado ou contém tipos de dados inválidos (como Enums incorretos).")
-                .ToActionResult();
-        }
-        
+    {   
         var validationResult = await _createProductRequestValidator.ValidateAsync(request);
 
         if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(x => x.PropertyName)
+                .ToDictionary(
+                    g => g.Key, 
+                    g => g.Select(e => e.ErrorMessage)
+                );
+        
             return Result<object>
-                .BadRequest("1 ou mais campos inválidos")
+                .BadRequest("1 ou mais campos inválidos", errors, Activity.Current?.Id)
                 .ToActionResult();
+        }
 
         var result = await _productService.CreateAsync(userId, request);
         return result.ToActionResult();

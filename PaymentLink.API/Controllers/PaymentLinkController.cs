@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Asp.Versioning;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -36,8 +37,15 @@ public class PaymentLinkController : ControllerBase
 
         if (!validationResult.IsValid)
         {
+            var errors = validationResult.Errors
+                .GroupBy(x => x.PropertyName)
+                .ToDictionary(
+                    g => g.Key, 
+                    g => g.Select(e => e.ErrorMessage)
+                );
+
             return Result<object>
-                .BadRequest("1 ou mais campos inválidos")
+                .BadRequest("1 ou mais campos inválidos", errors, Activity.Current?.Id)
                 .ToActionResult();
         }
         
