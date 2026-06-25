@@ -1,4 +1,6 @@
 using Asp.Versioning;
+using Checkout.Application.Checkouts.Interfaces;
+using Checkout.Application.Checkouts.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,15 +22,16 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 
 builder.Services.AddHttpClient("PaymentLinkClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5006");
+    client.BaseAddress = new Uri("http://localhost:5001");
     client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalSettings:ApiKey"]);
 });
 builder.Services.AddHttpClient("CatalogClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5004");
+    client.BaseAddress = new Uri("http://localhost:5001");
     client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalSettings:ApiKey"]);
 });
 
