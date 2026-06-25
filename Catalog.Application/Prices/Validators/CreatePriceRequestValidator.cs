@@ -20,23 +20,25 @@ public class CreatePriceRequestValidator : AbstractValidator<CreatePriceRequest>
         RuleFor(x => x.Currency)
             .NotEmpty().WithMessage("O campo {PropertyName} precisa ser fornecido")
             .Must(currency => currency?.ToUpper() == "BRL")
-            .WithMessage("O campo {PropertyName} precisa ser brl ou BRL")
+                .WithMessage("O campo {PropertyName} precisa ser brl ou BRL")
             .OverridePropertyName("currency");
 
         RuleFor(x => x.Frequency)
-            .NotEmpty().WithMessage("O campo {PropertyName} precisa ser fornecido")
+            .NotNull().WithMessage("O campo {PropertyName} precisa ser fornecido")
             .IsInEnum().WithMessage("O campo {PropertyName} é inválido")
             .OverridePropertyName("frequency");;
-
-        RuleFor(x => x.Cycle)
-            .IsInEnum().When(x => x.Cycle.HasValue).WithMessage("O campo {PropertyName} é inválido")
-            .OverridePropertyName("cycle");
 
         When(x => x.Frequency == PriceFrequency.Recurring, () =>
         {
             RuleFor(x => x.Cycle)
                 .NotNull().WithMessage("O campo {PropertyName} precisa ser fornecido quando a frequência for recorrente")
                 .IsInEnum().WithMessage("O campo {PropertyName} é inválido")
+                .OverridePropertyName("cycle");
+        })
+        .Otherwise(() =>
+        {
+            RuleFor(x => x.Cycle)
+                .IsInEnum().When(x => x.Cycle.HasValue).WithMessage("O campo {PropertyName} é inválido")
                 .OverridePropertyName("cycle");
         });
     }
