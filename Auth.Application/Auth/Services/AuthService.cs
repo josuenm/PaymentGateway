@@ -33,10 +33,10 @@ public class AuthService : IAuthService
         var user = await _userRepository.GetUserByEmailAsync(request.Email);
 
         if (user == null)
-            return Result<AuthenticationResponse>.Failure("Usuário não existe", ErrorType.NotFound);
+            return Result<AuthenticationResponse>.Unauthorized("Usuário não existe");
 
         if (!_passwordHasher.VerifyPassword(request.Password, user.Password))
-            return Result<AuthenticationResponse>.Failure("Email ou senha incorretos", ErrorType.Unauthorized);
+            return Result<AuthenticationResponse>.Unauthorized("Email ou senha incorretos");
 
         var authResponse = await _tokenService.CreateAuthenticationAsync(user); 
         
@@ -48,7 +48,7 @@ public class AuthService : IAuthService
         var userFound = await _userRepository.GetUserByEmailAsync(request.Email);
 
         if (userFound != null)
-            return Result<AuthenticationResponse>.Failure("Usuário ja existe", ErrorType.Conflict);
+            return Result<AuthenticationResponse>.Conflict("Usuário ja existe");
 
         var user = new User(
             request.Name,

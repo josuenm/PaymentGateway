@@ -3,7 +3,6 @@ using Auth.Application.Auth.DTOs.Requests;
 using Auth.Application.Auth.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Extensions;
 using Shared.Kernel.Results;
 
 namespace Auth.API.Controllers;
@@ -40,11 +39,7 @@ public class AuthController : ControllerBase
         if (!validationResult.IsValid)
         {
             return Result<object>
-                .Failure(
-                    "1 ou mais campos inválidos", 
-                    ErrorType.Validation, 
-                    validationResult.Errors
-                )
+                .BadRequest("1 ou mais campos inválidos")
                 .ToActionResult();
         }
         
@@ -62,11 +57,7 @@ public class AuthController : ControllerBase
         if (!validationResult.IsValid)
         {
             return Result<object>
-                .Failure(
-                    "1 ou mais campos inválidos", 
-                    ErrorType.Validation, 
-                    validationResult.Errors
-                )
+                .BadRequest("1 ou mais campos inválidos")
                 .ToActionResult();
         }
         

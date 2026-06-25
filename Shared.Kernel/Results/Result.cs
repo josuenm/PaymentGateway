@@ -1,54 +1,87 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Shared.Kernel.Results;
 
-public enum ErrorType
-{
-    Validation = 400,
-    Unauthorized = 401,
-    NotFound = 404,
-    Conflict = 409,
-    InternalError = 500
-}
+public record ErrorResult(
+    string Message,
+    Dictionary<string, IEnumerable<string>>? Details = null,
+    string? TraceId = null
+);
 
-public enum SuccessType
-{
-    Ok = 200,
-    Created = 201,
-    NoContent = 204
-}
+public record ResultObject<TData>(
+    TData? Data,
+    bool Success, 
+    ErrorResult? Error
+);
 
-public record Success<TValue>(TValue? Value, SuccessType Type);
-public record Error(string Message, ErrorType Type, object? Details = null);
-
-public class Result<TValue>
+public class Result<TData>
 {
-    public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
+    public int StatusCode;
+    public bool Success;
+    public TData Data;
+    public ErrorResult? Error = null;
     
-    public Success<TValue>? Success { get; }
-    public Error? Error { get; }
+    private Result() { }
 
-    public TValue? Value => Success != null ? Success.Value : default;
-
-    private Result(Success<TValue>? success, bool isSuccess, Error? error)
+    public static Result<TData> Ok(TData data) => new()
     {
-        Success = success;
-        IsSuccess = isSuccess;
-        Error = error;
-    }
+        Data = data,
+        Success = true,
+        StatusCode = 200
+    };
 
-    public static Result<TValue> Ok(TValue value) => 
-        new(new Success<TValue>(value, SuccessType.Ok), true, null);
+    public static Result<TData> Created(TData data) => new()
+    {
+        Data = data,
+        Success = true,
+        StatusCode = 201
+    };
 
-    public static Result<TValue> Created(TValue value) => 
-        new(new Success<TValue>(value, SuccessType.Created), true, null);
-
-    public static Result<TValue> NoContent() => 
-        new(new Success<TValue>(default, SuccessType.NoContent), true, null);
+    public static Result<TData> NotFound(string message) => new()
+    {
+        Success = false,
+        StatusCode = 404,
+        Error = new ErrorResult(message)
+    };
     
-    public static Result<TValue> Failure(string message, ErrorType type, object? details = null) => 
-        new(
-            null,
-            false, 
-            new Error(message, type, details)
-        );
+    public static Result<TData> BadRequest(string message) => new()
+    {
+        Success = false,
+        StatusCode = 400,
+        Error = new ErrorResult(message)
+    };
+
+    public static Result<TData> Unauthorized(string message) => new()
+    {
+        Success = false,
+        StatusCode = 401,
+        Error = new ErrorResult(message)
+    };
+
+    public static Result<TData> Conflict(string message) => new()
+    {
+        Success = false,
+        StatusCode = 409,
+        Error = new ErrorResult(message)
+    };
+    
+    public static Result<TData> InternalServerError(string message) => new()
+    {
+        Success = false,
+        StatusCode = 500,
+        Error = new ErrorResult(message)
+    };
+
+    public object ToObject()
+    {
+        return new ResultObject<TData>(Data, Success, Error);
+    }
+    
+    public IActionResult ToActionResult()
+    {
+        return new ObjectResult(new ResultObject<TData>(Data, Success, Error))
+        {
+            StatusCode = StatusCode
+        };
+    }
 }

@@ -39,11 +39,7 @@ public class CustomersController : ControllerBase
         if (!validationResult.IsValid)
         {
             return Result<object>
-                .Failure(
-                    "1 ou mais campos inválidos", 
-                    ErrorType.Validation, 
-                    validationResult.Errors
-                )
+                .BadRequest("1 ou mais campos inválidos")
                 .ToActionResult();
         }
         

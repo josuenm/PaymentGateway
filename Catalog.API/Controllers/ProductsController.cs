@@ -37,9 +37,7 @@ public class ProductsController : ControllerBase
         if (request is null)
         {
             return Result<object>
-                .Failure(
-                    "O corpo da requisição (JSON) está malformado ou contém tipos de dados inválidos (como Enums incorretos).", 
-                    ErrorType.Validation)
+                .BadRequest("O corpo da requisição (JSON) está malformado ou contém tipos de dados inválidos (como Enums incorretos).")
                 .ToActionResult();
         }
         
@@ -47,10 +45,7 @@ public class ProductsController : ControllerBase
 
         if (!validationResult.IsValid)
             return Result<object>
-                .Failure(
-                    "1 ou mais campos inválidos", 
-                    ErrorType.Validation, 
-                    validationResult.Errors)
+                .BadRequest("1 ou mais campos inválidos")
                 .ToActionResult();
 
         var result = await _productService.CreateAsync(userId, request);

@@ -106,7 +106,7 @@ public class ProductService : IProductService
         var product = await _productRepository.GetByIdAsync(userId, id);
 
         if (product == null)
-            return Result<ProductResponse>.Failure("O produto não foi encontrado", ErrorType.NotFound);
+            return Result<ProductResponse>.NotFound("O produto não foi encontrado");
 
         return Result<ProductResponse>.Ok(new ProductResponse(
             product.Id, 

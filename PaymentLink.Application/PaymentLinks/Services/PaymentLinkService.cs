@@ -29,7 +29,7 @@ public class PaymentLinkService : IPaymentLinkService
 
         if (pricesIdList.Count != pricesFound.Count)
         {
-            return Result<PaymentLinkResponse>.Failure("Algum preço é inválido", ErrorType.Validation);
+            return Result<PaymentLinkResponse>.BadRequest("Algum preço é inválido");
         }
 
         foreach (var price in request.Items)
@@ -38,12 +38,12 @@ public class PaymentLinkService : IPaymentLinkService
 
             if (item == null)
             {
-                return Result<PaymentLinkResponse>.Failure("Preço não encontrado", ErrorType.NotFound);
+                return Result<PaymentLinkResponse>.NotFound("Preço não encontrado");
             }
 
             if (item.UserId != userId)
             {
-                return Result<PaymentLinkResponse>.Failure("Preço inválido", ErrorType.Validation);
+                return Result<PaymentLinkResponse>.BadRequest("Preço inválido");
             }
         }
 
@@ -91,8 +91,7 @@ public class PaymentLinkService : IPaymentLinkService
 
         if (paymentLink == null)
         {
-            return Result<InternalPaymentLinkResponse>
-                .Failure("Link de pagamento não encontrado", ErrorType.NotFound);
+            return Result<InternalPaymentLinkResponse>.NotFound("Link de pagamento não encontrado");
         }
 
         return Result<InternalPaymentLinkResponse>.Ok(new InternalPaymentLinkResponse(

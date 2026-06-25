@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Shared.Kernel.Errors;
+using Shared.Kernel.Results;
 using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,12 +37,16 @@ builder.Services.AddAuthentication("Bearer")
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.ContentType = "application/json";
 
-                var response = new ErrorResult(
-                    "As credenciais de autenticação são inválidas ou não foram fornecidas."
+                var response = Result<object>.Unauthorized("As credenciais de autenticação são inválidas ou não foram fornecidas.");
+                
+                var json = System.Text.Json.JsonSerializer.Serialize(
+                    response.ToObject(),
+                    new System.Text.Json.JsonSerializerOptions 
+                    { 
+                        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase 
+                    }
                 );
-                
-                var json = System.Text.Json.JsonSerializer.Serialize(response);
-                
+
                 await context.Response.WriteAsync(json);
             }
         };

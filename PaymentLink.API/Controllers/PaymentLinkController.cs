@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PaymentLink.Application.PaymentLinks.DTOs.Requests;
 using PaymentLink.Application.PaymentLinks.Interfaces;
 using Shared.Extensions;
+using Shared.Infrastructure.Attributes;
 using Shared.Kernel.Results;
 
 namespace PaymentLink.API.Controllers;
@@ -37,11 +38,7 @@ public class PaymentLinkController : ControllerBase
         if (!validationResult.IsValid)
         {
             return Result<object>
-                .Failure(
-                    "1 ou mais campos inválidos", 
-                    ErrorType.Validation, 
-                    validationResult.Errors
-                )
+                .BadRequest("1 ou mais campos inválidos")
                 .ToActionResult();
         }
         
@@ -50,6 +47,7 @@ public class PaymentLinkController : ControllerBase
     }
 
     [HttpGet("/internal/{id}")]
+    [InternalAuthorize]
     public async Task<IActionResult> GetInternalPaymentLinkAsync(string id)
     {
         var result = await _paymentLinkService.GetInternalByIdAsync(id);

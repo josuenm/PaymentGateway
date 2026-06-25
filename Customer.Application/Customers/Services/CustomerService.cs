@@ -44,7 +44,7 @@ public class CustomerService : ICustomerService
         var customer = await _customerRepository.GetByIdAsync(userId, id);
 
         if (customer == null)
-            return Result<CustomerResponse>.Failure("O cliente não existe", ErrorType.NotFound);
+            return Result<CustomerResponse>.NotFound("O cliente não existe");
 
         return Result<CustomerResponse>.Ok(new CustomerResponse(
             customer.Id,

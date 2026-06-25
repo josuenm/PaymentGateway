@@ -24,23 +24,17 @@ public class CheckoutService : ICheckoutService
 
             if (paymentLink == null)
             {
-                return Result<IEnumerable<ItemResponse>>
-                    .Failure("Link de pagamento não encontrado", ErrorType.NotFound);
+                return Result<IEnumerable<ItemResponse>>.NotFound("Link de pagamento não encontrado");
             }
 
             if (!paymentLink.IsActive)
             {
-                return Result<IEnumerable<ItemResponse>>
-                    .Failure("O link de pagamento não esta mais ativo", ErrorType.NotFound);
+                return Result<IEnumerable<ItemResponse>>.NotFound("O link de pagamento não esta mais ativo");
             }
         }
         catch (HttpRequestException e)
         {
-            return Result<IEnumerable<ItemResponse>>
-                .Failure(
-                    "Erro ao obter o link de pagamento", 
-                    ErrorType.InternalError
-                );
+            return Result<IEnumerable<ItemResponse>>.BadRequest("Erro ao obter o link de pagamento");
         }
 
         throw new NotImplementedException();
