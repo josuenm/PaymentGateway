@@ -85,7 +85,7 @@ public class PaymentLinkService : IPaymentLinkService
         ));
     }
 
-    public async Task<Result<InternalPaymentLinkResponse>> GetInternalByIdAsync(string id)
+    public async Task<Result<InternalPaymentLinkResponse>> InternalGetByIdAsync(string id)
     {
         var paymentLink = await _paymentLinkRepository.GetByIdAsync(id, true);
 
