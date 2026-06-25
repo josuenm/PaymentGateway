@@ -13,4 +13,9 @@ public interface IPriceRepository
         IDbConnection? connectionParam
     );
     public Task<PagedSearchResult<Price>> GetAllPagedAsync(string userId, int page, int limit);
+    public Task<IEnumerable<Price>> GetManyByIdAsync(
+        IEnumerable<string> idList, 
+        bool? priceActive = true, 
+        bool? productActive = true
+    );
 }
