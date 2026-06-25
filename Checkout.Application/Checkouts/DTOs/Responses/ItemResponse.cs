@@ -8,5 +8,5 @@ public record ItemResponse(
     string Currency,
     long Amount,
     string Frequency, 
-    string Cycle 
+    string? Cycle 
 );
