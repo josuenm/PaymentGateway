@@ -61,6 +61,13 @@ public class Result<TData>
         StatusCode = 401,
         Error = new ErrorResult(message)
     };
+    
+    public static Result<TData> Forbidden(string message) => new()
+    {
+        Success = false,
+        StatusCode = 403,
+        Error = new ErrorResult(message)
+    };
 
     public static Result<TData> Conflict(string message) => new()
     {
