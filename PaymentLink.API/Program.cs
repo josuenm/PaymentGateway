@@ -11,7 +11,6 @@ using PaymentLink.Application.PriceReplicas.Services;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using PaymentLink.Domain.PriceReplicas.Repositories;
 using PaymentLink.Infrastructure.Repositories;
-using Shared.Extensions;
 using Shared.Infrastructure.Configurations;
 using Shared.Infrastructure.Contexts;
 
@@ -54,12 +53,6 @@ builder.Services.AddApiVersioning(options =>
         options.GroupNameFormat = "'v'VVV";
         options.SubstituteApiVersionInUrl = true;
     });
-builder.Services.AddControllers()
-    .ConfigureApiBehaviorOptions(options =>
-    {
-        options.SuppressModelStateInvalidFilter = true;
-    });
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers()
@@ -68,10 +61,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-    })
-    .ConfigureApiBehaviorOptions(options =>
-    {
-        options.SuppressModelStateInvalidFilter = true;
     });
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddValidatorsFromAssembly(typeof(CreatePaymentLinkValidator).Assembly);
