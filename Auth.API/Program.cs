@@ -9,7 +9,6 @@ using Auth.Domain.Users.Repositories;
 using Auth.Infrastructure.Repositories;
 using Auth.Infrastructure.Security.Cryptography;
 using FluentValidation;
-using Shared.Extensions;
 using Shared.Infrastructure.Configurations;
 using Shared.Infrastructure.Contexts;
 
@@ -28,7 +27,6 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-builder.Services.AddApiErrorHandling();
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {

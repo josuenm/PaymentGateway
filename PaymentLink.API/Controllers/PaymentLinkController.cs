@@ -3,7 +3,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using PaymentLink.Application.PaymentLinks.DTOs.Requests;
 using PaymentLink.Application.PaymentLinks.Interfaces;
-using Shared.Extensions;
 using Shared.Infrastructure.Attributes;
 using Shared.Kernel.Results;
 

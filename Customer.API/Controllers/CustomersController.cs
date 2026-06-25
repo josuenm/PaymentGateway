@@ -3,7 +3,6 @@ using Customer.Application.Customers.DTOs.Requests;
 using Customer.Application.Customers.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Extensions;
 using Shared.Kernel.Results;
 
 namespace Customer.API.Controllers;

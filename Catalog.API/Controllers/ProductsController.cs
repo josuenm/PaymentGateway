@@ -3,7 +3,6 @@ using Catalog.Application.Products.DTOs.Requests;
 using Catalog.Application.Products.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Extensions;
 using Shared.Kernel.Results;
 
 namespace Catalog.API.Controllers;
