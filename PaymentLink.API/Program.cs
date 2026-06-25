@@ -10,6 +10,7 @@ using PaymentLink.Application.PriceReplicas.Interfaces;
 using PaymentLink.Application.PriceReplicas.Services;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using PaymentLink.Domain.PriceReplicas.Repositories;
+using PaymentLink.Infrastructure.Data.TypeHandlers;
 using PaymentLink.Infrastructure.Repositories;
 using Shared.Infrastructure.Configurations;
 using Shared.Infrastructure.Contexts;
@@ -66,6 +67,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
+Dapper.SqlMapper.AddTypeHandler(new PaymentLinkMethodsHandler());
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddValidatorsFromAssembly(typeof(CreatePaymentLinkValidator).Assembly);
 builder.Services.AddScoped<IPaymentLinkService, PaymentLinkService>();
