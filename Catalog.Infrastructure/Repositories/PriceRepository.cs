@@ -15,6 +15,43 @@ public class PriceRepository : IPriceRepository
     {
         _context = context;
     }
+
+    public async Task<IEnumerable<Price>> GetManyByIdAsync(
+        IEnumerable<string> idList,
+        bool? priceActive = true, 
+        bool? productActive = true
+    )
+    {
+        const string sql = 
+@"
+SELECT 
+    pri.Id AS Id, 
+    pri.Name AS Name, 
+    pri.AmountInCents AS AmountInCents, 
+    pri.Currency AS Currency, 
+    pri.ProductId AS ProductId, 
+    pri.IsActive  AS IsActive, 
+    pri.Frequency  AS Frequency, 
+    pri.Cycle  AS Cycle
+FROM Prices AS pri
+    INNER JOIN Products as pro ON pro.Id = pri.ProductId
+WHERE pri.Id IN @IdList 
+    AND pri.IsActive = @PriceActive
+    AND pro.IsActive = @ProductActive;
+";
+        
+        var parameters = new
+        {
+            @PriceActive = priceActive == true ? 1 : 0,
+            @productActive = productActive == true ? 1 : 0,
+            IdList = idList,
+        };
+
+        var connection = _context.CreateConnection();
+        var result = await connection.QueryAsync<Price>(sql, parameters);
+        
+        return result;
+    }
     
     public async Task<IEnumerable<Price>> CreateManyAsync(
         IEnumerable<Price> prices, 
