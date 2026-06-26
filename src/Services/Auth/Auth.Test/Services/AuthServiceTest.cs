@@ -153,16 +153,13 @@ public class AuthServiceTest
     [Fact]
     public async Task Register_WithNonRole_ReturnsInternalServerError()
     {
-        var user = new User(
+        var user = new UserResponse(
             "usr_123", 
             "John Doe", 
-            "example@example.com", 
-            "123321", 
-            DateTime.Now, 
-            null
+            "example@example.com"
         );
         
-        var request = new RegisterRequest(user.Name, user.Email, user.Password);
+        var request = new RegisterRequest(user.Name, user.Email, "123321");
         
         _userRepository
             .Setup(method => method.GetUserByEmailAsync(request.Email))
@@ -182,16 +179,13 @@ public class AuthServiceTest
     [Fact]
     public async Task Register_WithValidData_ReturnsCreated()
     {
-        var user = new User(
+        var user = new UserResponse(
             "usr_123", 
             "John Doe", 
-            "example@example.com", 
-            "123321", 
-            DateTime.Now, 
-            null
+            "example@example.com"
         );
         
-        var request = new RegisterRequest(user.Name, user.Email, user.Password);
+        var request = new RegisterRequest(user.Name, user.Email, "123321");
         
         _userRepository
             .Setup(method => method.GetUserByEmailAsync(request.Email))
