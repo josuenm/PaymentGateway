@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentLink.Domain", "src\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentLink.Infrastructure", "src\Services\PaymentLink\PaymentLink.Infrastructure\PaymentLink.Infrastructure.csproj", "{57086D43-BD38-4B15-A2F8-236181855540}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.Test", "src\Auth\Auth.Test\Auth.Test.csproj", "{AF292312-D988-4B04-972C-E81F9C9034AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.Test", "src\Services\Auth\Auth.Test\Auth.Test.csproj", "{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -158,10 +158,10 @@ Global
 		{57086D43-BD38-4B15-A2F8-236181855540}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57086D43-BD38-4B15-A2F8-236181855540}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57086D43-BD38-4B15-A2F8-236181855540}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AF292312-D988-4B04-972C-E81F9C9034AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF292312-D988-4B04-972C-E81F9C9034AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF292312-D988-4B04-972C-E81F9C9034AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF292312-D988-4B04-972C-E81F9C9034AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

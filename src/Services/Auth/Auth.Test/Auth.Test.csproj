@@ -22,11 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Services\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\Services\Auth\Auth.API\Auth.API.csproj" />
+      <ProjectReference Include="..\Auth.API\Auth.API.csproj" />
     </ItemGroup>
 
 </Project>
