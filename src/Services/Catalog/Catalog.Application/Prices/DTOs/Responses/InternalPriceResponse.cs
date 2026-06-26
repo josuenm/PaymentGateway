@@ -9,6 +9,7 @@ public record InternalPriceResponse(
     string Currency, 
     string ProductId, 
     bool IsActive,
+    string UserId, 
     PriceFrequency Frequency, 
     PriceCycle? Cycle
 );

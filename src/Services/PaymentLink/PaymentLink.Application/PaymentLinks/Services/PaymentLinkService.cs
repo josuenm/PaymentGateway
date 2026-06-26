@@ -1,33 +1,49 @@
+using System.Text.Json;
 using PaymentLink.Application.PaymentLinks.DTOs.Requests;
 using PaymentLink.Application.PaymentLinks.DTOs.Responses;
 using PaymentLink.Application.PaymentLinks.Interfaces;
 using PaymentLink.Domain.Entities;
 using PaymentLink.Domain.PaymentLinks.Repositories;
-using PaymentLink.Domain.PriceReplicas.Repositories;
 using Shared.Kernel.Results;
 
 namespace PaymentLink.Application.PaymentLinks.Services;
 
 public class PaymentLinkService : IPaymentLinkService
 {
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly IPaymentLinkRepository _paymentLinkRepository;
-    private readonly IPriceReplicaRepository _priceReplicaRepository;
 
     public PaymentLinkService(
-        IPaymentLinkRepository paymentLinkRepository, 
-        IPriceReplicaRepository priceReplicaRepository
+        IHttpClientFactory httpClientFactory,
+        IPaymentLinkRepository paymentLinkRepository 
     )
     {
+        _httpClientFactory = httpClientFactory;
         _paymentLinkRepository = paymentLinkRepository;
-        _priceReplicaRepository = priceReplicaRepository;
     }
     
     public async Task<Result<PaymentLinkResponse>> CreateAsync(CreatePaymentLink request, string userId)
     {
         var pricesIdList = request.Items.Select(item => item.PriceId).Distinct().ToList();
-        var pricesFound = (await _priceReplicaRepository.GetManyById(pricesIdList)).ToList();
-
-        if (pricesIdList.Count != pricesFound.Count)
+        var priceList = string.Join(",", pricesIdList);
+        
+        var pricesClient = _httpClientFactory.CreateClient("CatalogClient");
+        var pricesResponse = await pricesClient.GetAsync($"/api/v1/prices/internal?idList={priceList}");
+        var pricesJson = await pricesResponse.Content.ReadAsStringAsync();
+        var pricesResult = JsonSerializer.Deserialize<ResultObject<IEnumerable<PriceResponse>>>(
+            pricesJson, 
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
+        
+        if (pricesResult == null)
+            return Result<PaymentLinkResponse>.InternalServerError("Erro ao obter os preços");
+            
+        if (!pricesResult.Success || pricesResult.Data == null)
+            return Result<PaymentLinkResponse>.InternalServerError("Erro ao obter os preços");
+        
+        var pricesFound = pricesResult.Data.ToList();
+        
+        if (pricesIdList.Count != pricesFound.Count())
         {
             return Result<PaymentLinkResponse>.BadRequest("Algum preço é inválido");
         }

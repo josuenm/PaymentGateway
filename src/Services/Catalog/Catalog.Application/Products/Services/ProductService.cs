@@ -5,8 +5,6 @@ using Catalog.Application.Products.Interfaces;
 using Catalog.Domain.Prices.Entities;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Repositories;
-using MassTransit;
-using Shared.IntegrationEvents;
 using Shared.Kernel.Results;
 
 namespace Catalog.Application.Products.Services;
@@ -14,15 +12,10 @@ namespace Catalog.Application.Products.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
-    private readonly IPublishEndpoint _publishEndpoint;
 
-    public ProductService(
-        IProductRepository productRepository, 
-        IPublishEndpoint publishEndpoint
-    )
+    public ProductService(IProductRepository productRepository)
     {
         _productRepository = productRepository;
-        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Result<ProductResponse>> CreateAsync(string userId, CreateProductRequest request)
@@ -52,27 +45,6 @@ public class ProductService : IProductService
         }
         
         await _productRepository.CreateAsync(product);
-
-        await _publishEndpoint.Publish(new ProductCreatedEvent(
-            product.Id, 
-            product.Name, 
-            product.Description, 
-            product.LiveMode, 
-            product.IsActive,
-            product.UserId,
-            product.Prices != null && product.Prices.Any() ? product.Prices.Select(price => new PriceCreatedEvent(
-                price.Id, 
-                price.Name, 
-                userId,
-                price.AmountInCents, 
-                price.Currency, 
-                price.IsActive, 
-                price.LiveMode, 
-                price.Frequency.ToString(), 
-                price.Cycle?.ToString() ?? null
-            )) : new List<PriceCreatedEvent>(),
-            product.Metadata
-        ));
 
         return Result<ProductResponse>.Created(new ProductResponse(
             product.Id, 

@@ -29,6 +29,7 @@ public class PriceService : IPriceService
             p.Currency,
             p.ProductId,
             p.IsActive,
+            p.UserId, 
             p.Frequency, 
             p.Cycle
         )));

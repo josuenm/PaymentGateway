@@ -16,4 +16,9 @@
         <EmbeddedResource Include="Scripts\**\*.sql" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Repositories\" />
+      <Folder Include="Scripts\Migrations\" />
+    </ItemGroup>
+
 </Project>
