@@ -67,6 +67,6 @@ public class AuthService : IAuthService
         
         var authResponse = await _tokenService.CreateAuthenticationAsync(user);
 
-        return Result<AuthenticationResponse>.Ok(authResponse);
+        return Result<AuthenticationResponse>.Created(authResponse);
     }
 }
