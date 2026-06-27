@@ -52,6 +52,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentLink.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.Test", "src\Services\Auth\Auth.Test\Auth.Test.csproj", "{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catalog.Test", "src\Services\Catalog\Catalog.Test\Catalog.Test.csproj", "{688BE138-8002-477D-8C94-7842DD19A81B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,10 @@ Global
 		{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1EE9B54-5C9D-40E2-A633-A36B393A5AE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{688BE138-8002-477D-8C94-7842DD19A81B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{688BE138-8002-477D-8C94-7842DD19A81B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{688BE138-8002-477D-8C94-7842DD19A81B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{688BE138-8002-477D-8C94-7842DD19A81B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
