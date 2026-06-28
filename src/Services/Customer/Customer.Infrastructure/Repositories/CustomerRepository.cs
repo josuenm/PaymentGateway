@@ -22,37 +22,26 @@ public class CustomerRepository : ICustomerRepository
 INSERT INTO Customers (Id, Email, Name, TaxId, LiveMode, UserId, CreatedAt) 
 VALUES (@Id, @Email, @Name, @TaxId, 0, @UserId, @CreatedAt)
 ";
-        
-        try
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                await connection.ExecuteAsync(sql, customer);
-            }
 
-            return customer;
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        using var connection = _context.CreateConnection();
+        await connection.ExecuteAsync(sql, customer);
+        return customer;
+    }
+
+    public async Task<CustomerEntity?> GetByEmailAsync(string userId, string email)
+    {
+        const string sql = "SELECT * FROM Customers WHERE Email = @Email AND UserId = @UserId;";
+        var parameters = new { Email = email, UserId = userId };
+        
+        using var connection = _context.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<CustomerEntity>(sql, parameters);   
     }
 
     public async Task<CustomerEntity?> GetByIdAsync(string userId, string id)
     {
         const string sql = "SELECT * FROM Customers WHERE Id = @Id AND UserId = @UserId;";
-
-        try
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QueryFirstOrDefaultAsync<CustomerEntity>(sql, new { Id = id, UserId = userId });
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        using var connection = _context.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<CustomerEntity>(sql, new { Id = id, UserId = userId });
     }
 
     public async Task<PagedSearchResult<CustomerEntity>> GetAllAsync(string userId, int page, int limit)
@@ -84,39 +73,31 @@ FETCH NEXT @Limit ROWS ONLY;
             Page = page, 
             Limit = limit, 
         };
+
+        using var connection = _context.CreateConnection();
         
-        try
-        {
-            using (var connection = _context.CreateConnection())
+        var totalCount = 0;
+            
+        var result = await connection.QueryAsync<CustomerEntity, int, CustomerEntity>(
+            sql,
+            (customer, total) =>
             {
-                var totalCount = 0;
-                
-                var result = await connection.QueryAsync<CustomerEntity, int, CustomerEntity>(
-                    sql,
-                    (customer, total) =>
-                    {
-                        totalCount = total;
-                        return customer;
-                    },
-                    parameters,
-                    splitOn: "Total"
-                );
+                totalCount = total;
+                return customer;
+            },
+            parameters,
+            splitOn: "Total"
+        );
 
-                if (!result.Any())
-                    return new PagedSearchResult<CustomerEntity>(new List<CustomerEntity>(), 0);
+        if (!result.Any())
+            return new PagedSearchResult<CustomerEntity>(new List<CustomerEntity>(), 0);
 
-                var customers = result.ToList();
+        var customers = result.ToList();
 
-                return new PagedSearchResult<CustomerEntity>(
-                    customers,
-                    totalCount
-                );
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        return new PagedSearchResult<CustomerEntity>(
+            customers,
+            totalCount
+        );
     }
     
 }
