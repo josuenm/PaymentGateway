@@ -15,6 +15,43 @@ public class CustomerService : ICustomerService
     {
         _customerRepository = customerRepository;
     }
+
+    public async Task<Result<CustomerResponse>> InternalGetOrCreateAsync(
+        string userId, 
+        CreateCustomerRequest customerRequest
+    )
+    {
+        var customerFound = await _customerRepository.GetByEmailAsync(userId, customerRequest.Email);
+
+        if (customerFound != null)
+        {
+            return Result<CustomerResponse>.Ok(new CustomerResponse(
+                customerFound.Id,
+                customerFound.Email,
+                customerFound.Name,
+                customerFound.TaxId,
+                customerFound.CreatedAt
+            ));
+        }
+        
+        var newCustomer = new CustomerEntity(
+            customerRequest.Email, 
+            customerRequest.Name, 
+            customerRequest.TaxId, 
+            false, 
+            userId
+        );
+        
+        await _customerRepository.CreateAsync(newCustomer);
+        
+        return Result<CustomerResponse>.Ok(new CustomerResponse(
+            newCustomer.Id,
+            newCustomer.Email,
+            newCustomer.Name,
+            newCustomer.TaxId,
+            newCustomer.CreatedAt
+        ));
+    }
     
     public async Task<Result<CustomerResponse>> CreateCustomerAsync(
         string userId, 
