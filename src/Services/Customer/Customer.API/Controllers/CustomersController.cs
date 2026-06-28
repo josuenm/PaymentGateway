@@ -73,4 +73,30 @@ public class CustomersController : ControllerBase
     {
         return Ok(await _customerService.GetCustomersPagedAsync(userId, page, limit));
     }
+
+    [HttpPost("internal/get-or-create")]
+    public async Task<IActionResult> InternalGetOrCreateAsync(
+        [FromHeader(Name = "X-User-Id")] string userId, 
+        [FromBody] CreateCustomerRequest request
+    )
+    {
+        var validationResult = await _createCustomerRequestValidator.ValidateAsync(request);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(x => x.PropertyName)
+                .ToDictionary(
+                    g => g.Key, 
+                    g => g.Select(e => e.ErrorMessage)
+                );
+            
+            return Result<object>
+                .BadRequest("1 ou mais campos inválidos", errors, Activity.Current?.Id)
+                .ToActionResult();
+        }
+
+        var result = await _customerService.InternalGetOrCreateAsync(userId, request);
+        return result.ToActionResult();
+    }
 }
