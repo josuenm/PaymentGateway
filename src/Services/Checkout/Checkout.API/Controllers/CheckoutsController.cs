@@ -7,13 +7,19 @@ namespace Checkout.API.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("/api/v{version:apiVersion}/[controller]")]
-public class CheckoutController : ControllerBase
+public class CheckoutsController : ControllerBase
 {
     private readonly ICheckoutService _checkoutService;
 
-    public CheckoutController(ICheckoutService checkoutService)
+    public CheckoutsController(ICheckoutService checkoutService)
     {
         _checkoutService = checkoutService;
+    }
+
+    [HttpPost("payment/create")]
+    public async Task<IActionResult> CreatePayment()
+    {
+        throw new NotImplementedException();
     }
     
     [HttpGet("paymentlink/{paymentLinkId}/items")]
