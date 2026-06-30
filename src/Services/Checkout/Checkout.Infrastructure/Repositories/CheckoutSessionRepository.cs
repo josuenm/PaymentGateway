@@ -19,9 +19,9 @@ public class CheckoutSessionRepository : ICheckoutSessionRepository
         const string sql = 
 @"
 INSERT INTO CheckoutSessions 
-    (Id, SessionId, CustomerId, PaymentId, PaymentLinkId, Amount, Currency, UserId, PaymentMethod, CreatedAt)
+    (Id, CustomerId, PaymentId, PaymentLinkId, Amount, Currency, UserId, Method, CreatedAt)
 VALUES 
-    (@Id, @SessionId, @CustomerId, @PaymentId, PaymentMethod, @Amount, @Currency, @UserId, @PaymentMethod, @CreatedAt)
+    (@Id, @CustomerId, @PaymentId, @Method, @Amount, @Currency, @UserId, @Method, @CreatedAt)
 ";
 
         using var connection = _context.CreateConnection();

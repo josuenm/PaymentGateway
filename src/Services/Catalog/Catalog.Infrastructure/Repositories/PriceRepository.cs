@@ -32,6 +32,7 @@ SELECT
     pri.ProductId AS ProductId, 
     pri.IsActive  AS IsActive, 
     pri.Frequency  AS Frequency, 
+    pri.UserId AS USerId,
     pri.Cycle  AS Cycle
 FROM Prices AS pri
     INNER JOIN Products as pro ON pro.Id = pri.ProductId

@@ -6,6 +6,7 @@ namespace Checkout.Application.Checkouts.Interfaces;
 
 public interface ICheckoutService
 {
-    public Task<Result<IEnumerable<ItemResponse>>> GetPaymentLinkItemsDetailsAsync(string paymentLinkId);
+    public Task<Result<PaymentLinkDetailsResponse>> GetPaymentLinkItemsDetailsAsync(string paymentLinkId);
     public Task<Result<PixPaymentResponse>> CreatePixPaymentAsync(CreatePaymentRequest paymentRequest);
+    public Task<Result<bool>> ConfirmSandboxPaymentAsync(string paymentLinkId);
 }

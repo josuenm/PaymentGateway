@@ -12,7 +12,7 @@ public class CheckoutSession
     public long Amount { get; private set; }
     public string Currency { get; private set; }
     public string UserId { get; private set; }
-    public PaymentMethod PaymentMethod { get; private set; }
+    public PaymentMethod Method { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     public CheckoutSession(
@@ -32,7 +32,7 @@ public class CheckoutSession
         Amount = amount;
         Currency = currency;
         UserId = userId;
-        PaymentMethod = paymentMethod;
+        Method = paymentMethod;
         CreatedAt = DateTime.UtcNow;
     }
     

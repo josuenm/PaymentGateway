@@ -111,10 +111,11 @@ public class PaymentLinkService : IPaymentLinkService
         }
 
         return Result<InternalPaymentLinkResponse>.Ok(new InternalPaymentLinkResponse(
-            paymentLink.IsActive, 
             paymentLink.Items.Any()
                 ? paymentLink.Items.Select(item => new InternalPaymentLinkItemResponse(item.PriceId, item.Quantity))
                 : new List<InternalPaymentLinkItemResponse>(), 
+            paymentLink.IsActive, 
+            paymentLink.LiveMode,
             paymentLink.UserId
         ));
     }

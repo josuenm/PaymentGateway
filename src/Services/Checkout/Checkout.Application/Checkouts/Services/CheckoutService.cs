@@ -41,12 +41,14 @@ public class CheckoutService : ICheckoutService
             return Result<PixPaymentResponse>.InternalServerError("Erro ao obter o link de pagamento");
 
         
+        if (!paymentLink.IsActive)
+            return Result<PixPaymentResponse>.InternalServerError("O link de pagamento não esta ativo");
         
         
         var customerPayload = new CreateCustomerHttpRequest(
-            paymentRequest.Customer!.Email,
-            paymentRequest.Customer!.Name,
-            paymentRequest.Customer!.TaxId
+            paymentRequest.Customer.Email,
+            paymentRequest.Customer.Name,
+            paymentRequest.Customer.TaxId
         );
 
         
@@ -121,17 +123,23 @@ public class CheckoutService : ICheckoutService
         ));
     }
     
-    public async Task<Result<IEnumerable<ItemResponse>>> GetPaymentLinkItemsDetailsAsync(string paymentLinkId)
+    public async Task<Result<PaymentLinkDetailsResponse>> GetPaymentLinkItemsDetailsAsync(string paymentLinkId)
     {
         try
         {
             var paymentLink = await _paymentLinkApiClient.GetAsync(paymentLinkId);
 
             if (paymentLink == null)
-                return Result<IEnumerable<ItemResponse>>.InternalServerError("Erro ao obter o link de pagamento");
-            
+                return Result<PaymentLinkDetailsResponse>.InternalServerError("Erro ao obter o link de pagamento");
+
             if (!paymentLink.IsActive)
-                return Result<IEnumerable<ItemResponse>>.NotFound("O link de pagamento não existe");
+                return Result<PaymentLinkDetailsResponse>
+                    .Ok(new PaymentLinkDetailsResponse(
+                        new List<ItemResponse>(), 
+                        paymentLink.IsActive, 
+                        paymentLink.LiveMode
+                        )
+                    );
 
             var paymentLinkItems = paymentLink.Items.ToList();
             
@@ -142,7 +150,7 @@ public class CheckoutService : ICheckoutService
             var prices = await _priceApiClient.GetManyByIdAsync(priceIdList);
             
             if (prices == null)
-                return Result<IEnumerable<ItemResponse>>.InternalServerError("Erro ao obter itens");
+                return Result<PaymentLinkDetailsResponse>.InternalServerError("Erro ao obter itens");
             
             var items = prices.Select(p =>
             {
@@ -169,11 +177,40 @@ public class CheckoutService : ICheckoutService
             .Select(p => p!)
             .ToList();
             
-            return Result<IEnumerable<ItemResponse>>.Ok(items);
+            return Result<PaymentLinkDetailsResponse>.Ok(new PaymentLinkDetailsResponse(
+                items, 
+                paymentLink.IsActive, 
+                paymentLink.LiveMode
+            ));
         }
         catch (HttpRequestException e)
         {
-            return Result<IEnumerable<ItemResponse>>.BadRequest("Erro ao obter o link de pagamento");
+            return Result<PaymentLinkDetailsResponse>.BadRequest("Erro ao obter o link de pagamento");
+        }
+    }
+    
+    public async Task<Result<bool>> ConfirmSandboxPaymentAsync(string paymentLinkId)
+    {
+        try
+        {
+            var paymentLink = await _paymentLinkApiClient.GetAsync(paymentLinkId);
+
+            if (paymentLink == null)
+                return Result<bool>.InternalServerError("Erro ao obter o link de pagamento");
+
+            if (!paymentLink.LiveMode)
+                return Result<bool>.InternalServerError("O link de pagamento não é sandbox");
+
+            var confirmation = await _paymentApiClient.ConfirmSandboxPaymentAsync(paymentLinkId);
+            
+            if (confirmation == null)
+                return Result<bool>.InternalServerError("Erro ao confirmar pagamento");
+            
+            return Result<bool>.Ok(confirmation.Value);
+        }
+        catch (HttpRequestException e)
+        {
+            return Result<bool>.BadRequest("Erro ao confirmar pagamento");
         }
     }
 }

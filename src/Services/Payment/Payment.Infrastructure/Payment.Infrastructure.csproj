@@ -11,4 +11,8 @@
       <ProjectReference Include="..\Payment.Domain\Payment.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <EmbeddedResource Include="Scripts\**\*.sql" />
+    </ItemGroup>
+
 </Project>

@@ -17,6 +17,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\Shared\Shared.Infrastructure\Shared.Infrastructure.csproj" />
       <ProjectReference Include="..\Payment.Application\Payment.Application.csproj" />
+      <ProjectReference Include="..\Payment.Infrastructure\Payment.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

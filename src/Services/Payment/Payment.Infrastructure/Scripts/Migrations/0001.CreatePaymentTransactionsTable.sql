@@ -10,7 +10,7 @@ CREATE TABLE PaymentTransactions(
     Status TINYINT NOT NULL, 
     Amount BIGINT NOT NULL, 
     Currency VARCHAR(3) NOT NULL,
-    ChargeResponse NVARCHAR(max) NOT NULl, 
+    ChargeResponse NVARCHAR(MAX) NOT NULl, 
     LiveMode BIT NOT NULL, 
     CreatedAt DATETIME2 NOT NULL,
     UpdatedAt DATETIME2 NULL,

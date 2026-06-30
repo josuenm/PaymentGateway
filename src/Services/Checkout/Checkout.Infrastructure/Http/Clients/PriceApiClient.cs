@@ -18,7 +18,7 @@ public class PriceApiClient : IPriceApiClient
     {
         var priceList = string.Join(",", idList.ToList());
         
-        var response = await _httpClient.GetAsync($"/api/v1/prices/internal?idList={priceList}");
+        var response = await _httpClient.GetAsync($"api/v1/prices/internal?idList={priceList}");
         var responseJson = await response.Content.ReadAsStringAsync();
         
         var result = JsonSerializer.Deserialize<ResultObject<IEnumerable<PriceHttpResponse>>>(

@@ -8,13 +8,20 @@ namespace Payment.Infrastructure.Repositories;
 public class PaymentTransactionRepository : IPaymentTransactionRepository
 {
     private readonly DapperContext _context;
+
+    public PaymentTransactionRepository(DapperContext context)
+    {
+        _context = context;
+    }
     
     public async Task<PaymentTransactionEntity> CreateAsync(PaymentTransactionEntity paymentTransaction)
     {
         const string sql = 
 @"
-INSERT INTO PaymentTransactions (Id, CustomerId, Method, Status, Amount, Currency, UserId, LiveMode, CreatedAt)
-VALUES (@Id, @CustomerId, @Method, @Status, @Amount, @Currency, @UserId, @ChargeId, @ChargeResponse, @LiveMode, @CreatedAt);
+INSERT INTO PaymentTransactions 
+    (Id, CustomerId, Method, Status, Amount, Currency, UserId, LiveMode, ChargeId, ChargeResponse, CreatedAt)
+VALUES 
+    (@Id, @CustomerId, @Method, @Status, @Amount, @Currency, @UserId, @LiveMode, @ChargeId, @ChargeResponse, @CreatedAt);
 ";
 
         using var connection = _context.CreateConnection();
@@ -34,11 +41,11 @@ VALUES (@Id, @CustomerId, @Method, @Status, @Amount, @Currency, @UserId, @Charge
         return paymentTransaction;
     }
 
-    public async Task<bool> SetPaidByIdAsync(PaymentTransactionEntity paymentTransaction)
+    public async Task<bool> SetPaidAsync(PaymentTransactionEntity paymentTransaction)
     {
         const string sql =
 @"
-UPDATE PixTransactions 
+UPDATE PaymentTransactions 
     SET Status = @Status, PaidAt = @PaidAt 
 WHERE Id = @Id;
 ";

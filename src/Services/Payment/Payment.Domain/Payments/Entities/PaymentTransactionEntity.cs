@@ -14,8 +14,8 @@ public class PaymentTransactionEntity
     public string UserId { get; private set; }
     public bool LiveMode { get; private set; }
     public string ChargeId { get; private set; }
-    public object ChargeResponse { get; private set; }
-    public DateTime CreadtedAt { get; private set; }    
+    public string ChargeResponse { get; private set; }
+    public DateTime CreatedAt { get; private set; }    
     public DateTime? PaidAt { get; private set; } 
 
     public PaymentTransactionEntity(
@@ -26,7 +26,7 @@ public class PaymentTransactionEntity
         string currency, 
         string userId,
         string chargeId,
-        object chargeResponse,
+        string chargeResponse,
         bool liveMode 
     )
     {
@@ -40,7 +40,7 @@ public class PaymentTransactionEntity
         ChargeId = chargeId;
         ChargeResponse = chargeResponse;
         LiveMode = liveMode;
-        CreadtedAt = DateTime.UtcNow;
+        CreatedAt = DateTime.UtcNow;
         PaidAt = null;
     }
     
@@ -53,7 +53,7 @@ public class PaymentTransactionEntity
         string currency, 
         string userId,
         string chargeId,
-        object chargeResponse,
+        string chargeResponse,
         bool liveMode 
     )
     {
@@ -67,7 +67,7 @@ public class PaymentTransactionEntity
         LiveMode = liveMode;
         ChargeId = chargeId;
         ChargeResponse = chargeResponse;
-        CreadtedAt = DateTime.UtcNow;
+        CreatedAt = DateTime.UtcNow;
         PaidAt = null;
     }
 

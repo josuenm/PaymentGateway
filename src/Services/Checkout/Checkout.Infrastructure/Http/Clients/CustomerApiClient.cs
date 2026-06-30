@@ -20,13 +20,13 @@ public class CustomerApiClient : ICustomerApiClient
     {
         var json = JsonSerializer.Serialize(new CreateCustomerHttpRequest
         (
-            customer.Email!,
-            customer?.Name,
-            customer?.TaxId
+            customer.Email,
+            customer.Name,
+            customer.TaxId
         ));
         
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/customers/internal/get-or-create")
+        var request = new HttpRequestMessage(HttpMethod.Post, "api/v1/customers/internal/get-or-create")
         {
             Content = content
         };

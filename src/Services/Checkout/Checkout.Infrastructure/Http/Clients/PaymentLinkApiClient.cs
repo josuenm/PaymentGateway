@@ -16,7 +16,7 @@ public class PaymentLinkApiClient : IPaymentLinkApiClient
     
     public async Task<PaymentLinkHttpResponse?> GetAsync(string id)
     {
-        var response = await _httpClient.GetAsync($"/api/v1/paymentlinks/internal/{id}");
+        var response = await _httpClient.GetAsync($"api/v1/paymentlinks/internal/{id}");
         var responseJson = await response.Content.ReadAsStringAsync();
         
         var result = JsonSerializer.Deserialize<ResultObject<PaymentLinkHttpResponse>>(

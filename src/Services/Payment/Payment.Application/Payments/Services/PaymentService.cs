@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Payment.Application.Payments.DTOs.Requests;
 using Payment.Application.Payments.DTOs.Responses;
 using Payment.Application.Payments.Interfaces;
@@ -38,7 +39,7 @@ public class PaymentService : IPaymentService
             request.Currency,
             request.UserId,
             chargeResponse.Id, 
-            chargeResponse, 
+            JsonSerializer.Serialize(chargeResponse), 
             true
          );
 
@@ -60,14 +61,33 @@ public class PaymentService : IPaymentService
         if (payment == null)
             return Result<PixPaymentResponse>.NotFound($"Pagamento não encontrado para o id {paymentId}");
 
-        var chargeResponse = (PixAcquirerResponse)payment.ChargeResponse;
+        var chargeResponse = JsonSerializer.Deserialize<PixAcquirerResponse>(payment.ChargeResponse);
         
         return Result<PixPaymentResponse>.Ok(new PixPaymentResponse(
-            chargeResponse.QrCodeData, 
+            chargeResponse!.QrCodeData, 
             payment.Id, 
             payment.Amount,
             payment.Currency, 
             payment.Status
         ));
+    }
+
+    public async Task<Result<bool>> ConfirmSandboxPaymentAsync(string paymentId)
+    {
+        var payment = await _paymentTransactionRepository.GetByIdAsync(paymentId);
+        
+        if (payment == null)
+            return Result<bool>.NotFound("Pagamento não encontrado");
+
+        if (!payment.LiveMode)
+            return Result<bool>.BadRequest("O pagamento não é sandbox");
+
+        if (payment.Status == PaymentStatus.Paid)
+            return Result<bool>.Ok(true);
+        
+        payment.SetPaid();
+        await _paymentTransactionRepository.SetPaidAsync(payment);
+        
+        return Result<bool>.Ok(payment.Status == PaymentStatus.Paid);
     }
 }

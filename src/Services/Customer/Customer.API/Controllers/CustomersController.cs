@@ -4,6 +4,7 @@ using Customer.Application.Customers.DTOs.Requests;
 using Customer.Application.Customers.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Infrastructure.Attributes;
 using Shared.Kernel.Results;
 
 namespace Customer.API.Controllers;
@@ -75,6 +76,7 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPost("internal/get-or-create")]
+    [InternalAuthorize]
     public async Task<IActionResult> InternalGetOrCreateAsync(
         [FromHeader(Name = "X-User-Id")] string userId, 
         [FromBody] CreateCustomerRequest request
