@@ -12,13 +12,13 @@ namespace PaymentLink.API.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("/api/v{version:apiVersion}/[controller]")]
-public class PaymentLinkController : ControllerBase
+public class PaymentLinksController : ControllerBase
 {
     private readonly IPaymentLinkService _paymentLinkService;
     
     private readonly IValidator<CreatePaymentLink> _createPaymentLinkValidator;
 
-    public PaymentLinkController(
+    public PaymentLinksController(
         IPaymentLinkService paymentLinkService, 
         IValidator<CreatePaymentLink> createPaymentLinkValidator
     )
