@@ -1,6 +1,6 @@
 namespace Checkout.Application.Checkouts.DTOs.Responses;
 
-public record PriceResponse(
+public record PriceHttpResponse(
     string Id, 
     string Name, 
     long Amount, 

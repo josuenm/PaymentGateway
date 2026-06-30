@@ -27,7 +27,7 @@ public class PriceRepository : IPriceRepository
 SELECT 
     pri.Id AS Id, 
     pri.Name AS Name, 
-    pri.AmountInCents AS AmountInCents, 
+    pri.Amount AS Amount, 
     pri.Currency AS Currency, 
     pri.ProductId AS ProductId, 
     pri.IsActive  AS IsActive, 
@@ -61,8 +61,8 @@ WHERE pri.Id IN @IdList
     {
         const string sql = 
             @"
-INSERT INTO Prices (Id, Name, AmountInCents, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
-VALUES (@Id, @Name, @AmountInCents, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
+INSERT INTO Prices (Id, Name, Amount, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
+VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
 ";
         
         try
@@ -83,8 +83,8 @@ VALUES (@Id, @Name, @AmountInCents, @Frequency, @Cycle, @Currency, @ProductId, @
     {
         const string sql = 
 @"
-INSERT INTO Prices (Id, Name, AmountInCents, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
-VALUES (@Id, @Name, @AmountInCents, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
+INSERT INTO Prices (Id, Name, Amount, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
+VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
 ";
         
         try
@@ -108,7 +108,7 @@ VALUES (@Id, @Name, @AmountInCents, @Frequency, @Cycle, @Currency, @ProductId, @
 SELECT 
     Id,
     Name, 
-    AmountInCents, 
+    Amount, 
     Currency, 
     Frequency, 
     Cycle, 

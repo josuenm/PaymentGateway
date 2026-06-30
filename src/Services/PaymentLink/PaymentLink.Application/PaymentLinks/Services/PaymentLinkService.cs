@@ -114,7 +114,8 @@ public class PaymentLinkService : IPaymentLinkService
             paymentLink.IsActive, 
             paymentLink.Items.Any()
                 ? paymentLink.Items.Select(item => new InternalPaymentLinkItemResponse(item.PriceId, item.Quantity))
-                : new List<InternalPaymentLinkItemResponse>()
+                : new List<InternalPaymentLinkItemResponse>(), 
+            paymentLink.UserId
         ));
     }
 }

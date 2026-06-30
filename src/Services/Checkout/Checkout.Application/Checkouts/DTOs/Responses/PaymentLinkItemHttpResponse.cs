@@ -1,6 +1,6 @@
 namespace Checkout.Application.Checkouts.DTOs.Responses;
 
-public record PaymentLinkItemResponse(
+public record PaymentLinkItemHttpResponse(
     string PriceId, 
     int Quantity
 );

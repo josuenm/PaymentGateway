@@ -25,7 +25,7 @@ public class PriceService : IPriceService
         return Result<IEnumerable<InternalPriceResponse>>.Ok(prices.Select(p => new InternalPriceResponse(
             p.Id, 
             p.Name, 
-            p.AmountInCents, 
+            p.Amount, 
             p.Currency,
             p.ProductId,
             p.IsActive,

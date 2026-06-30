@@ -1,6 +1,9 @@
 using Asp.Versioning;
+using Checkout.Application.Checkouts.Abstractions;
 using Checkout.Application.Checkouts.Interfaces;
 using Checkout.Application.Checkouts.Services;
+using Checkout.Infrastructure.Http.Clients;
+using Checkout.Infrastructure.Http.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,15 +26,29 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+builder.Services.AddScoped<ICustomerApiClient, CustomerApiClient>();
+builder.Services.AddScoped<IPaymentLinkApiClient, PaymentLinkApiClient>();
+builder.Services.AddScoped<IPriceApiClient, PriceApiClient>();
+builder.Services.AddScoped<IPaymentApiClient, PaymentApiClient>();
 
 builder.Services.AddHttpClient("PaymentLinkClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001");
+    client.BaseAddress = new Uri("http://localhost:5001/api/v1/paymentlinks/internal");
     client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalSettings:ApiKey"]);
 });
-builder.Services.AddHttpClient("CatalogClient", client =>
+builder.Services.AddHttpClient("PriceClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001");
+    client.BaseAddress = new Uri("http://localhost:5001/api/v1/prices/internal");
+    client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalSettings:ApiKey"]);
+});
+builder.Services.AddHttpClient("CustomerClient", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5001/api/v1/customers/internal");
+    client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalSettings:ApiKey"]);
+});
+builder.Services.AddHttpClient("PaymentClient", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5001/api/v1/payments/internal");
     client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalSettings:ApiKey"]);
 });
 
