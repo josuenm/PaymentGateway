@@ -7,7 +7,7 @@ CREATE TABLE Prices (
     Currency VARCHAR(3) NOT NULL,
     Frequency TINYINT NOT NULL,
     Cycle TINYINT NULL,
-    AmountInCents BIGINT NOT NULL, 
+    Amount BIGINT NOT NULL, 
     ProductId VARCHAR(50) NOT NULL,
     UserId VARCHAR(50) NOT NULL,
     IsActive BIT NOT NULL,
