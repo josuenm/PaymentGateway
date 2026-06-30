@@ -8,7 +8,7 @@ public class Price
 {
     public string Id { get; private set; }
     public string Name { get; private set; }
-    public long AmountInCents { get; private set; }
+    public long Amount { get; private set; }
     public string Currency { get; private set; }
     public string ProductId { get; private set; }
     public string UserId { get; private set; }
@@ -33,7 +33,7 @@ public class Price
     {
         Id = IdGenerator.Generate("pri");
         Name = name;
-        AmountInCents = amount;
+        Amount = amount;
         Currency = currency;
         Frequency = frequency;
         Cycle = cycle;
@@ -48,7 +48,7 @@ public class Price
     public Price(
         string id, 
         string name,
-        long amountInCents, 
+        long amount, 
         string currency, 
         string productId,
         PriceFrequency frequency, 
@@ -62,7 +62,7 @@ public class Price
     {
         Id = id;
         Name = name;
-        AmountInCents = amountInCents;
+        Amount = amount;
         Currency = currency;
         ProductId = productId;
         Frequency = frequency;
