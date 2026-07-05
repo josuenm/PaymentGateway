@@ -3,6 +3,7 @@ using Checkout.Application.Checkouts.DTOs.Requests;
 using Checkout.Application.Checkouts.DTOs.Responses;
 using Checkout.Application.Checkouts.Interfaces;
 using Checkout.Domain.Checkouts.Entities;
+using Checkout.Domain.Checkouts.Enums;
 using Checkout.Domain.Checkouts.Repositories;
 using Checkout.Infrastructure.Http.Interfaces;
 using Shared.Kernel.Results;
@@ -32,17 +33,32 @@ public class CheckoutService : ICheckoutService
         _paymentApiClient = paymentApiClient;
         _priceApiClient = priceApiClient;
     }
+    
+    public async Task<Result<PaymentResponse>> CreatePaymentAsync(CreatePaymentRequest paymentRequest)
+    {
+        if (paymentRequest.Method == PaymentMethod.Pix) return await CreatePixPaymentAsync(paymentRequest);
 
-    public async Task<Result<PixPaymentResponse>> CreatePixPaymentAsync(CreatePaymentRequest paymentRequest)
+        return await CreateCreditCardPaymentAsync(paymentRequest);
+    }
+
+    public async Task<Result<PaymentResponse>> CreateCreditCardPaymentAsync(CreatePaymentRequest paymentRequest)
+    {
+        return Result<PaymentResponse>.Created(new PaymentResponse(
+            "sess_123", 
+            "payt_123" 
+        ));
+    }
+
+    public async Task<Result<PaymentResponse>> CreatePixPaymentAsync(CreatePaymentRequest paymentRequest)
     {
         var paymentLink = await _paymentLinkApiClient.GetAsync(paymentRequest.SourceId);
         
         if (paymentLink == null)
-            return Result<PixPaymentResponse>.InternalServerError("Erro ao obter o link de pagamento");
+            return Result<PaymentResponse>.InternalServerError("Erro ao obter o link de pagamento");
 
         
         if (!paymentLink.IsActive)
-            return Result<PixPaymentResponse>.InternalServerError("O link de pagamento não esta ativo");
+            return Result<PaymentResponse>.InternalServerError("O link de pagamento não esta ativo");
         
         
         var customerPayload = new CreateCustomerHttpRequest(
@@ -57,7 +73,7 @@ public class CheckoutService : ICheckoutService
 
         
         if (customer == null)
-            return Result<PixPaymentResponse>.InternalServerError("Erro ao obter o cliente");
+            return Result<PaymentResponse>.InternalServerError("Erro ao obter o cliente");
         
         
         
@@ -71,7 +87,7 @@ public class CheckoutService : ICheckoutService
         var prices = await _priceApiClient.GetManyByIdAsync(priceIdList);
             
         if (prices == null)
-            return Result<PixPaymentResponse>.InternalServerError("Erro ao obter itens");
+            return Result<PaymentResponse>.InternalServerError("Erro ao obter itens");
 
         
         var total = prices.Sum(p => p.Amount);
@@ -95,7 +111,7 @@ public class CheckoutService : ICheckoutService
         var payment = await _paymentApiClient.CreatePixPaymentAsync(paymentPayload);
         
         if (payment == null)
-            return Result<PixPaymentResponse>.InternalServerError("Erro ao gerar cobrança");
+            return Result<PaymentResponse>.InternalServerError("Erro ao gerar cobrança");
         
         
         
@@ -114,7 +130,7 @@ public class CheckoutService : ICheckoutService
         
         await _checkoutSessionRepository.CreateAsync(session);
 
-        return Result<PixPaymentResponse>.Created(new PixPaymentResponse(
+        return Result<PaymentResponse>.Created(new PaymentResponse(
             session.Id, 
             paymentId, 
             qrCodeData, 

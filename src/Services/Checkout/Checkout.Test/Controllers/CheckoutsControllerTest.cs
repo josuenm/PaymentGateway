@@ -2,6 +2,7 @@ using Checkout.API.Controllers;
 using Checkout.Application.Checkouts.DTOs.Requests;
 using Checkout.Application.Checkouts.DTOs.Responses;
 using Checkout.Application.Checkouts.Interfaces;
+using Checkout.Application.Checkouts.Validators;
 using Checkout.Domain.Checkouts.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -11,13 +12,42 @@ namespace Checkout.Test.Controllers;
 
 public class CheckoutsControllerTest
 {
+    
     private readonly Mock<ICheckoutService> _checkoutServiceMock;
     private readonly CheckoutsController _checkoutsController;
 
     public CheckoutsControllerTest()
     {
         _checkoutServiceMock = new Mock<ICheckoutService>();
-        _checkoutsController = new CheckoutsController(_checkoutServiceMock.Object);
+        _checkoutsController = new CheckoutsController(
+            _checkoutServiceMock.Object, 
+            new CreatePaymentRequestValidator()
+        );
+    }
+    
+    [Fact]
+    public async Task CreatePayment_InvalidData_ReturnsBadRequest()
+    {
+        var request = new CreatePaymentRequest(PaymentMethod.Pix, "pl_123", new CustomerPaymentRequest(
+            "John Doe", 
+            "example@gmail.com", 
+            "", 
+            null
+        ));
+        
+        var result = await _checkoutsController.CreatePaymentAsync(request);
+        var resultObject = Assert.IsType<ObjectResult>(result);
+        var resultValue = Assert.IsType<ResultObject<object>>(resultObject.Value);
+        
+        Assert.Equal(400, resultObject.StatusCode);
+        
+        Assert.Null(resultValue.Data);
+        Assert.False(resultValue.Success);
+        Assert.NotNull(resultValue.Error);
+        Assert.NotNull(resultValue.Error.Details);
+        
+        Assert.Equal("1 ou mais campos inválidos", resultValue.Error.Message);
+        Assert.Contains("taxId", resultValue.Error.Details.Keys);
     }
 
     [Fact]
@@ -29,7 +59,7 @@ public class CheckoutsControllerTest
             new CustomerPaymentRequest("John Doe", "example@example.com", "12345678901", null)
         );
 
-        var paymentResponse = new PixPaymentResponse(
+        var paymentResponse = new PaymentResponse(
             "cs_123",
             "payt_123",
             "QR_CODE_DATA",
@@ -39,11 +69,11 @@ public class CheckoutsControllerTest
 
         _checkoutServiceMock
             .Setup(service => service.CreatePixPaymentAsync(request))
-            .ReturnsAsync(Result<PixPaymentResponse>.Created(paymentResponse));
+            .ReturnsAsync(Result<PaymentResponse>.Created(paymentResponse));
 
         var result = await _checkoutsController.CreatePaymentAsync(request);
         var objectResult = Assert.IsType<ObjectResult>(result);
-        var resultValue = Assert.IsType<ResultObject<PixPaymentResponse>>(objectResult.Value);
+        var resultValue = Assert.IsType<ResultObject<PaymentResponse>>(objectResult.Value);
 
         Assert.Equal(201, objectResult.StatusCode);
         Assert.True(resultValue.Success);
