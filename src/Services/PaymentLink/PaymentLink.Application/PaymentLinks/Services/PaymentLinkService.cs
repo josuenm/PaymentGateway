@@ -1,7 +1,9 @@
 using System.Text.Json;
+using MassTransit;
 using PaymentLink.Application.PaymentLinks.DTOs.Requests;
 using PaymentLink.Application.PaymentLinks.DTOs.Responses;
 using PaymentLink.Application.PaymentLinks.Interfaces;
+using PaymentLink.Application.PaymentLinks.Messaging.Commands;
 using PaymentLink.Domain.Entities;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using Shared.Kernel.Results;
@@ -12,14 +14,17 @@ public class PaymentLinkService : IPaymentLinkService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IPaymentLinkRepository _paymentLinkRepository;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public PaymentLinkService(
         IHttpClientFactory httpClientFactory,
-        IPaymentLinkRepository paymentLinkRepository 
+        IPaymentLinkRepository paymentLinkRepository, 
+        IPublishEndpoint publishEndpoint
     )
     {
         _httpClientFactory = httpClientFactory;
         _paymentLinkRepository = paymentLinkRepository;
+        _publishEndpoint = publishEndpoint;
     }
     
     public async Task<Result<PaymentLinkResponse>> CreateAsync(CreatePaymentLink request, string userId)
@@ -83,6 +88,15 @@ public class PaymentLinkService : IPaymentLinkService
         }
 
         await _paymentLinkRepository.CreateAsync(paymentLink);
+
+        await _publishEndpoint.Publish(new PaymentLinkCreatedCommand(
+            paymentLink.Id,
+            paymentLink.IsActive,
+            paymentLink.UserId,
+            paymentLink.Items.Select(i =>
+                new PaymentLinkItemCreatedCommand(i.Id, i.PaymentLinkId, i.PriceId, i.LiveMode)), 
+            paymentLink.LiveMode
+        ));
 
         return Result<PaymentLinkResponse>.Created(new PaymentLinkResponse(
             paymentLink.Id, 

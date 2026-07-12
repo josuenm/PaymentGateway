@@ -45,7 +45,7 @@ VALUES (@Id, @Methods, @UserId, @LiveMode, @IsActive, @CreatedAt)
         );
         if (paymentLink.Items.Any())
         {
-            await _paymentLinkItemRepository.CreateManyAsync(paymentLink.Items, transaction, connection);
+            await _paymentLinkItemRepository.CreateManyAsync(paymentLink.Items, transaction);
         }
 
         transaction.Commit();

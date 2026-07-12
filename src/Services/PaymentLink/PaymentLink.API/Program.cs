@@ -1,7 +1,9 @@
 using System.Text.Json;
 using Asp.Versioning;
 using FluentValidation;
+using MassTransit;
 using PaymentLink.Application.PaymentLinks.Interfaces;
+using PaymentLink.Application.PaymentLinks.Messaging.Commands;
 using PaymentLink.Application.PaymentLinks.Services;
 using PaymentLink.Application.PaymentLinks.Validators;
 using PaymentLink.Domain.PaymentLinks.Repositories;
@@ -12,6 +14,22 @@ using Shared.Infrastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host("localhost", "/", host =>
+        {
+            host.Username("guest");
+            host.Password("guest");
+        });
+        
+        cfg.Message<PaymentLinkCreatedCommand>(m =>
+        {
+            m.SetEntityName("paymentlink.paymentlink-created");
+        });
+    });
+});
 builder.Configuration.RunMigrations(typeof(PaymentLinkRepository).Assembly);
 builder.Services.AddApiVersioning(options =>
     {

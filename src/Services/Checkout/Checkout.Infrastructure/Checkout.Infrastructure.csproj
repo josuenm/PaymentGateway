@@ -16,4 +16,8 @@
         <EmbeddedResource Include="Scripts\**\*.sql" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MassTransit" Version="9.1.2" />
+    </ItemGroup>
+
 </Project>

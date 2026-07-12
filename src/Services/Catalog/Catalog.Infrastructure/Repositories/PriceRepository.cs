@@ -56,8 +56,7 @@ WHERE pri.Id IN @IdList
     
     public async Task<IEnumerable<Price>> CreateManyAsync(
         IEnumerable<Price> prices, 
-        IDbTransaction? transaction, 
-        IDbConnection? connectionParam = null
+        IDbTransaction? transaction = null 
     )
     {
         const string sql = 
@@ -66,18 +65,11 @@ INSERT INTO Prices (Id, Name, Amount, Frequency, Cycle, Currency, ProductId, Use
 VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
 ";
         
-        try
-        {
-            var connection = connectionParam ?? _context.CreateConnection();
+        var connection = transaction?.Connection ?? _context.CreateConnection();
             
-            await connection.ExecuteAsync(sql, prices, transaction);
+        await connection.ExecuteAsync(sql, prices, transaction);
             
-            return prices;
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        return prices;
     }
     
     public async Task<Price> CreateAsync(Price price)
@@ -87,19 +79,11 @@ VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId,
 INSERT INTO Prices (Id, Name, Amount, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
 VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
 ";
-        
-        try
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                await connection.ExecuteAsync(sql, price);
-            }
-            return price;
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+
+        using var connection = _context.CreateConnection();
+        await connection.ExecuteAsync(sql, price);
+
+        return price;
     }
 
     public async Task<PagedSearchResult<Price>> GetAllPagedAsync(string userId, int page, int limit)
@@ -127,39 +111,31 @@ OFFSET (@Page - 1) * @Limit ROWS
 FETCH NEXT @Limit ROWS ONLY;
 ";
         
-        try
+        var parameters = new
         {
-            var parameters = new
-            {
-                UserId = userId,
-                Page = page,
-                Limit = limit
-            };
+            UserId = userId,
+            Page = page,
+            Limit = limit
+        };
             
-            var totalCount = 0; 
-            
-            using (var connection = _context.CreateConnection())
-            {
-                var result = await connection.QueryAsync<Price, int, Price>(
-                    sql,
-                    (price, total) =>
-                    {
-                        totalCount = total;
-                        return price;
-                    }, 
-                    parameters, 
-                    splitOn: "Total"
-                );
+        var totalCount = 0;
 
-                if (!result.Any())
-                    return new PagedSearchResult<Price>(new List<Price>(), totalCount);
+        using var connection = _context.CreateConnection();
+        
+        var result = await connection.QueryAsync<Price, int, Price>(
+            sql,
+            (price, total) =>
+            {
+                totalCount = total;
+                return price;
+            }, 
+            parameters, 
+            splitOn: "Total"
+        );
+
+        if (!result.Any())
+            return new PagedSearchResult<Price>(new List<Price>(), totalCount);
                 
-                return new PagedSearchResult<Price>(result.ToList(), totalCount);
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        return new PagedSearchResult<Price>(result.ToList(), totalCount);
     }
 }

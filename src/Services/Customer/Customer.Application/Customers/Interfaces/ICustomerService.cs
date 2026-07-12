@@ -1,11 +1,14 @@
 using Customer.Application.Customers.DTOs.Requests;
 using Customer.Application.Customers.DTOs.Responses;
+using Customer.Application.Customers.Messaging.Events;
 using Shared.Kernel.Results;
 
 namespace Customer.Application.Customers.Interfaces;
 
 public interface ICustomerService
 {
+    public Task CreateFromExternalRequestAsync(CustomerCreatedEvent @event);
+    public Task UpdateFromExternalRequestAsync(CustomerUpdatedEvent @event);
     public Task<Result<CustomerResponse>> CreateCustomerAsync(string userId, CreateCustomerRequest customerRequest);
     public Task<Result<CustomerResponse>> InternalGetOrCreateAsync(string userId, CreateCustomerRequest customer);
     public Task<Result<CustomerResponse>> GetCustomerByIdAsync(string userId, string id);

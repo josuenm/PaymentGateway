@@ -17,8 +17,7 @@ public class PaymentLinkItemRepository : IPaymentLinkItemRepository
     
     public async Task<IEnumerable<PaymentLinkItem>> CreateManyAsync(
         IEnumerable<PaymentLinkItem> items,
-        IDbTransaction? transaction,
-        IDbConnection? connectionParam
+        IDbTransaction? transaction
     )
     {
         const string sql = 
@@ -27,7 +26,7 @@ INSERT INTO PaymentLinkItems (Id, UserId, PaymentLinkId, PriceId, Quantity, Live
 VALUES (@Id, @UserId, @PaymentLinkId, @PriceId, @Quantity, @LiveMode, @CreatedAt)
 ";
 
-        var connection = connectionParam ?? _context.CreateConnection();
+        var connection = transaction?.Connection ?? _context.CreateConnection();
         
         await connection.ExecuteAsync(sql, items, transaction);
         

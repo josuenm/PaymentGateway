@@ -6,6 +6,7 @@ using Customer.Domain.Customers.Entities;
 using Customer.Domain.Customers.Repositories;
 using Moq;
 using Shared.Kernel.Results;
+using MassTransit;
 
 namespace Customer.Test.Services;
 
@@ -13,11 +14,18 @@ public class CustomerServiceTest
 {
     private readonly CustomerService _customerService;
     private readonly Mock<ICustomerRepository> _customerRepository;
+    private readonly Mock<ISendEndpointProvider> _sendEndpointProviderMock;
+    private readonly Mock<ISendEndpoint> _sendEndpointMock;
 
     public CustomerServiceTest()
     {
+        _sendEndpointProviderMock = new Mock<ISendEndpointProvider>();
+        _sendEndpointMock = new Mock<ISendEndpoint>();
         _customerRepository = new Mock<ICustomerRepository>();
-        _customerService = new CustomerService(_customerRepository.Object);
+        _customerService = new CustomerService(
+            _customerRepository.Object, 
+            _sendEndpointProviderMock.Object
+        );
     }
 
     [Fact]
@@ -25,10 +33,14 @@ public class CustomerServiceTest
     {
         var userId = "usr_123";
         var request = new CreateCustomerRequest("example@example.com", "John Doe", "12345678901");
-
+        
         _customerRepository
             .Setup(method => method.CreateAsync(It.IsAny<CustomerEntity>()))
             .ReturnsAsync((CustomerEntity customer) => customer);
+        
+        _sendEndpointProviderMock
+            .Setup(provider => provider.GetSendEndpoint(It.IsAny<Uri>()))
+            .ReturnsAsync(_sendEndpointMock.Object);
 
         var result = await _customerService.CreateCustomerAsync(userId, request);
         var resultObject = Assert.IsType<Result<CustomerResponse>>(result);

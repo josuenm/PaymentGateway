@@ -1,18 +1,23 @@
 using Customer.Application.Customers.Interfaces;
 using Customer.Application.Customers.DTOs.Requests;
 using Customer.Application.Customers.DTOs.Responses;
+using Customer.Application.Customers.Messaging.Events;
+using Customer.Application.Customers.Messaging.Commands;
 using Customer.Domain.Customers.Entities;
 using Customer.Domain.Customers.Repositories;
+using MassTransit;
 using Shared.Kernel.Results;
 
 namespace Customer.Application.Customers.Services;
 
 public class CustomerService : ICustomerService
 {
+    private readonly IPublishEndpoint _publishEndpoint;
     private readonly ICustomerRepository _customerRepository;
 
-    public CustomerService(ICustomerRepository customerRepository)
+    public CustomerService(ICustomerRepository customerRepository, IPublishEndpoint publishEndpoint)
     {
+        _publishEndpoint = publishEndpoint;
         _customerRepository = customerRepository;
     }
 
@@ -44,6 +49,13 @@ public class CustomerService : ICustomerService
         
         await _customerRepository.CreateAsync(newCustomer);
         
+        await _publishEndpoint.Publish(new CustomerCreatedCommand(
+            newCustomer.Id, 
+            newCustomer.Name, 
+            newCustomer.Email, 
+            newCustomer.TaxId
+        ));
+        
         return Result<CustomerResponse>.Ok(new CustomerResponse(
             newCustomer.Id,
             newCustomer.Email,
@@ -51,6 +63,34 @@ public class CustomerService : ICustomerService
             newCustomer.TaxId,
             newCustomer.CreatedAt
         ));
+    }
+
+    public async Task CreateFromExternalRequestAsync(CustomerCreatedEvent @event)
+    {
+        var customer = CustomerEntity.CreateWithId(
+            @event.Id, 
+            @event.Email, 
+            @event.Name, 
+            @event.TaxId, 
+            @event.UserId, 
+            @event.LiveMode
+        );
+
+        await _customerRepository.CreateAsync(customer);
+    }
+
+    public async Task UpdateFromExternalRequestAsync(CustomerUpdatedEvent @event)
+    {
+        var customer = CustomerEntity.CreateWithId(
+            @event.Id, 
+            @event.Email, 
+            @event.Name, 
+            @event.TaxId, 
+            @event.UserId, 
+            @event.LiveMode
+        );
+        
+        await _customerRepository.UpdateAsync(customer);
     }
     
     public async Task<Result<CustomerResponse>> CreateCustomerAsync(

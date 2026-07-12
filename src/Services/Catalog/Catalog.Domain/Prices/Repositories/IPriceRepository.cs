@@ -9,8 +9,7 @@ public interface IPriceRepository
     public Task<Price> CreateAsync(Price price);
     public Task<IEnumerable<Price>> CreateManyAsync(
         IEnumerable<Price> prices, 
-        IDbTransaction? transaction, 
-        IDbConnection? connectionParam
+        IDbTransaction? transaction = null 
     );
     public Task<PagedSearchResult<Price>> GetAllPagedAsync(string userId, int page, int limit);
     public Task<IEnumerable<Price>> GetManyByIdAsync(
