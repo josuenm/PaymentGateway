@@ -40,6 +40,7 @@ Shared libraries:
 - ASP.NET Core Web API
 - YARP Reverse Proxy
 - JWT Bearer authentication
+- RabbitMQ
 - FluentValidation
 - Dapper + SQL Server
 - DbUp (SQL migrations on startup)
@@ -121,9 +122,6 @@ Authorization: Bearer <accessToken>
 | `/api/v1/products/*`                 | Yes           | Product catalog                |
 | `/api/v1/paymentlinks/*`             | Yes           | Payment link creation          |
 | `/api/v1/checkouts/*`                | No            | Checkout and PIX payment flow  |
-| `/api/v1/customers/internal/*`       | Internal key  | Service-to-service customer ops |
-| `/api/v1/prices/internal/*`          | Internal key  | Bulk price lookup              |
-| `/api/v1/paymentlinks/internal/*`    | Internal key  | Payment link lookup            |
 | `/api/v1/payments/internal/*`        | Internal key  | PIX payment operations         |
 
 Internal endpoints require the `X-Internal-Api-Key` header. The default development key is `123321` (configured in `InternalSettings:ApiKey`).
@@ -139,11 +137,11 @@ dotnet test PaymentGateway.sln
 | Test project       | Tests |
 |--------------------|-------|
 | Auth.Test          | 13    |
-| Catalog.Test       | 12    |
-| Customer.Test      | 11    |
-| Payment.Test       | 9     |
-| Checkout.Test      | 9     |
-| PaymentLink.Test   | 7     |
+| Catalog.Test       | 8     |
+| Customer.Test      | 10    |
+| Payment.Test       | 6     |
+| Checkout.Test      | 14    |
+| PaymentLink.Test   | 4     |
 
 Tests use **xUnit** and **Moq**, referencing each service's `.API` project.
 
