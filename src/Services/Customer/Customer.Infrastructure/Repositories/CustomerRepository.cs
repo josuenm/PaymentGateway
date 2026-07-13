@@ -15,6 +15,21 @@ public class CustomerRepository : ICustomerRepository
         _context = context;
     }
 
+    public async Task<CustomerEntity> UpdateAsync(CustomerEntity customer)
+    {
+        const string sql =
+@"
+UPDATE Customers
+SET Email = @Email, Name = @Name, TaxId = @TaxId
+WHERE Id = @Id;
+";
+        
+        using var connection =  _context.CreateConnection();
+        await connection.ExecuteAsync(sql, customer);
+        
+        return customer;
+    }
+
     public async Task<CustomerEntity> CreateAsync(CustomerEntity customer)
     {
         const string sql = 
@@ -78,7 +93,7 @@ FETCH NEXT @Limit ROWS ONLY;
         
         var totalCount = 0;
             
-        var result = await connection.QueryAsync<CustomerEntity, int, CustomerEntity>(
+        var result = (await connection.QueryAsync<CustomerEntity, int, CustomerEntity>(
             sql,
             (customer, total) =>
             {
@@ -87,9 +102,9 @@ FETCH NEXT @Limit ROWS ONLY;
             },
             parameters,
             splitOn: "Total"
-        );
+        )).ToList();
 
-        if (!result.Any())
+        if (result.Count < 1)
             return new PagedSearchResult<CustomerEntity>(new List<CustomerEntity>(), 0);
 
         var customers = result.ToList();

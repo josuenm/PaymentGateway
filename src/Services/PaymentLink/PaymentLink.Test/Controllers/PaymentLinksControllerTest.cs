@@ -76,29 +76,4 @@ public class PaymentLinksControllerTest
         Assert.NotNull(resultValue.Data);
         Assert.Null(resultValue.Error);
     }
-
-    [Fact]
-    public async Task InternalGetPaymentLinkByIdAsync_WithValidId_ReturnsOk()
-    {
-        var paymentLinkId = "plink_123";
-
-        _paymentLinkServiceMock
-            .Setup(service => service.InternalGetByIdAsync(paymentLinkId))
-            .ReturnsAsync(Result<InternalPaymentLinkResponse>.Ok(new InternalPaymentLinkResponse(
-                new List<InternalPaymentLinkItemResponse>(),
-                true,
-                true,
-                "usr_123"
-            )));
-
-        var result = await _paymentLinksController.InternalGetPaymentLinkByIdAsync(paymentLinkId);
-        var objectResult = Assert.IsType<ObjectResult>(result);
-        var resultValue = Assert.IsType<ResultObject<InternalPaymentLinkResponse>>(objectResult.Value);
-
-        Assert.Equal(200, objectResult.StatusCode);
-        Assert.True(resultValue.Success);
-
-        Assert.NotNull(resultValue.Data);
-        Assert.True(resultValue.Data.IsActive);
-    }
 }

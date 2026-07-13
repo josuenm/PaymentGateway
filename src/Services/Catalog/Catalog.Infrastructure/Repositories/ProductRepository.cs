@@ -1,7 +1,9 @@
 using Catalog.Domain.Commons;
+using Catalog.Domain.Prices.Entities;
 using Catalog.Domain.Prices.Repositories;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Repositories;
+using Catalog.Infrastructure.Repositories.QueryResults;
 using Dapper;
 using Shared.Infrastructure.Contexts;
 
@@ -25,26 +27,25 @@ public class ProductRepository : IProductRepository
 INSERT INTO Products (Id, Name, Description, IsActive, LiveMode, UserId, Metadata, CreatedAt)
 VALUES (@Id, @Name, @Description, @IsActive, @LiveMode, @UserId, @Metadata, @CreatedAt)
 ";
+        using var connection = _context.CreateConnection();
+        var transaction = connection.BeginTransaction();
 
         try
         {
-            using var connection = _context.CreateConnection();
-            
-            var transaction = connection.BeginTransaction();
-            
             await connection.ExecuteAsync(sql, product, transaction);
             
             if (product.Prices != null && product.Prices.Any())
             {
-                await _priceRepository.CreateManyAsync(product.Prices, transaction, connection);
+                await _priceRepository.CreateManyAsync(product.Prices, transaction);
             }
             
             transaction.Commit();
 
             return product;
         }
-        catch (Exception e)
+        catch
         {
+            transaction.Rollback();
             throw;
         }
     }
@@ -57,18 +58,9 @@ VALUES (@Id, @Name, @Description, @IsActive, @LiveMode, @UserId, @Metadata, @Cre
             Id = id,
             UserId = userId
         };
-        
-        try
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QueryFirstOrDefaultAsync<Product>(sql, parameters);
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+
+        using var connection = _context.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<Product>(sql, parameters);
     }
     
     public async Task<Product?> GetByNameAsync(string userId, string name)
@@ -80,17 +72,8 @@ VALUES (@Id, @Name, @Description, @IsActive, @LiveMode, @UserId, @Metadata, @Cre
             UserId = userId
         };
         
-        try
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QueryFirstOrDefaultAsync<Product>(sql, parameters);
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        using var connection = _context.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<Product>(sql, parameters);
     }
 
     public async Task<PagedSearchResult<Product>> GetAllPagedAsync(string userId, int page, int limit)
@@ -98,19 +81,34 @@ VALUES (@Id, @Name, @Description, @IsActive, @LiveMode, @UserId, @Metadata, @Cre
         const string sql =
 @"
 SELECT
-    Id, 
-    Name, 
-    IsActive, 
-    LiveMode,
-    Description, 
-    Metadata,
-    UserId, 
-    CreatedAt, 
-    UpdatedAt,
-    COUNT(*) OVER() AS Total
-FROM Products
-WHERE UserId = @UserId
-ORDER BY CreatedAt DESC
+    prod.Id, 
+    prod.Name, 
+    prod.IsActive, 
+    prod.LiveMode,
+    prod.Description, 
+    prod.Metadata,
+    prod.UserId, 
+    prod.CreatedAt, 
+    prod.UpdatedAt,
+    
+    COUNT(*) OVER() AS Total,
+    
+    pri.Id AS PriceId,
+    pri.Name AS PriceName,
+    pri.Amount,
+    pri.Currency,
+    pri.Frequency,
+    pri.Cycle,
+    pri.UserId AS PriceUserId,
+    pri.IsActive AS PriceIsActive,
+    pri.LiveMode AS PriceLiveMode,
+    pri.CreatedAt AS PriceCreatedAt,
+    pri.UpdatedAt AS PriceUpdatedAt,
+    pri.ProductId
+FROM Products AS prod
+LEFT JOIN Prices AS pri ON prod.Id = pri.ProductId
+WHERE prod.UserId = @UserId
+ORDER BY prod.CreatedAt DESC
 OFFSET (@Page - 1) * @Limit ROWS
 FETCH NEXT @Limit ROWS ONLY;
 ";
@@ -122,38 +120,56 @@ FETCH NEXT @Limit ROWS ONLY;
             Limit = limit, 
         };
         
-        try
-        {
-            var totalCount = 0;
-            
-            using (var connection = _context.CreateConnection())
+        var totalCount = 0;
+        var productDictionary = new Dictionary<string, Product>();
+
+        using var connection = _context.CreateConnection();
+        var result = (await connection.QueryAsync<Product, int, PriceQueryResult?, Product>(
+            sql,
+            (product, total, price) =>
             {
-                var result = await connection.QueryAsync<Product, int, Product>(
-                    sql,
-                    (product, total) =>
-                    {
-                        totalCount = total;
-                        return product;
-                    },
-                    parameters,
-                    splitOn: "Total"
-                );
-                
-                if (!result.Any())
-                    return new PagedSearchResult<Product>(new List<Product>(), 0);
+                totalCount = total;
 
-                var products = result.ToList();
+                if (!productDictionary.TryGetValue(product.Id, out var existingProduct))
+                {
+                    existingProduct = product;
+                    existingProduct.SetPrices(new List<Price>());
+                    productDictionary.Add(product.Id, existingProduct);
+                }
 
-                return new PagedSearchResult<Product>(
-                    products, 
-                    totalCount
-                );
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+                if (price != null)
+                {
+                    var priceList = existingProduct.Prices!.ToList();
+                    priceList.Add(new Price(
+                        price.PriceId, 
+                        price.PriceName,
+                        price.Amount, 
+                        price.Currency, 
+                        price.ProductId,
+                        price.Frequency, 
+                        price.Cycle, 
+                        price.PriceUserId,
+                        price.PriceLiveMode,
+                        price.PriceIsActive,
+                        price.PriceCreatedAt, 
+                        price.PriceUpdatedAt
+                    ));
+                    existingProduct.SetPrices(priceList);
+                }
+
+                return existingProduct;
+            },
+            parameters,
+            splitOn: "Total,PriceId"
+        )).ToList();
+        
+        if (result.Count < 1)
+            return new PagedSearchResult<Product>(new List<Product>(), 0);
+
+        return new PagedSearchResult<Product>(
+            result, 
+            totalCount
+        );
     }
     
 }

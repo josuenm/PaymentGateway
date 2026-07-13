@@ -7,7 +7,6 @@ public interface IPaymentLinkItemRepository
 {
     public Task<IEnumerable<PaymentLinkItem>> CreateManyAsync(
         IEnumerable<PaymentLinkItem> items, 
-        IDbTransaction? transaction, 
-        IDbConnection? connectionParam
+        IDbTransaction? transaction
     );
 }

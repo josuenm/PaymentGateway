@@ -8,11 +8,16 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Customer.Domain\Customer.Domain.csproj" />
+      <ProjectReference Include="..\Customer.Application\Customer.Application.csproj" />
       <ProjectReference Include="..\..\..\Shared\Shared.Infrastructure\Shared.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <EmbeddedResource Include="Scripts\**\*.sql" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MassTransit" Version="8.5.10" />
     </ItemGroup>
 
 </Project>

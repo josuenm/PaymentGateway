@@ -54,7 +54,7 @@ VALUES (@Id, @Name, @Email, @Password, @CreatedAt)
             
             return user;
         }
-        catch (Exception e)
+        catch
         {
             transaction.Rollback();
             throw;
@@ -72,45 +72,36 @@ INNER JOIN Roles r ON ur.RoleId = r.Id
 WHERE u.Email = @Email
 ";
 
-        try
-        {
-            using (var connection = _context.CreateConnection())
+        using var connection = _context.CreateConnection();
+        var userDictionary = new Dictionary<string, User>();
+
+        await connection.QueryAsync<User, string, User>(
+            sql,
+            (user, roleName) =>
             {
-                var userDictionary = new Dictionary<string, User>();
-                
-                await connection.QueryAsync<User, string, User>(
-                    sql,
-                    (user, roleName) =>
+                if (!userDictionary.TryGetValue(user.Id, out var existingUser))
+                {
+                    existingUser = user;
+                    existingUser.SetRoles(new List<string>());
+                    userDictionary.Add(user.Id, user);
+                }
+
+                if (!string.IsNullOrEmpty(roleName))
+                {
+                    var currentRoles = existingUser.Roles;
+                    if (!currentRoles.Contains(roleName))
                     {
-                        if (!userDictionary.TryGetValue(user.Id, out var existingUser))
-                        {
-                            existingUser = user;
-                            existingUser.SetRoles(new List<string>());
-                            userDictionary.Add(user.Id, user);
-                        }
+                        currentRoles.Add(roleName);
+                        existingUser.SetRoles(currentRoles);
+                    }
+                }
 
-                        if (!string.IsNullOrEmpty(roleName))
-                        {
-                            var currentRoles = existingUser.Roles ?? new List<string>();
-                            if (!currentRoles.Contains(roleName))
-                            {
-                                currentRoles.Add(roleName);
-                                existingUser.SetRoles(currentRoles);
-                            }
-                        }
-                        
-                        return existingUser;
-                    },
-                    new { Email = email }, 
-                    splitOn: "RoleName"
-                );
+                return existingUser;
+            },
+            new { Email = email }, 
+            splitOn: "RoleName"
+        );
 
-                return userDictionary.Values.FirstOrDefault();
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        return userDictionary.Values.FirstOrDefault();
     }
 }

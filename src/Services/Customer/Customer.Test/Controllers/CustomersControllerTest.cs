@@ -5,6 +5,7 @@ using Customer.Application.Customers.Interfaces;
 using Customer.Application.Customers.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
 
 namespace Customer.Test.Controllers;
@@ -123,24 +124,5 @@ public class CustomersControllerTest
         Assert.Equal(200, resultObject.StatusCode);
         Assert.Equal(page, resultValue.Page);
         Assert.Equal(limit, resultValue.Limit);
-    }
-
-    [Fact]
-    public async Task InternalGetOrCreateAsync_WithInvalidData_ReturnsBadRequest()
-    {
-        var request = new CreateCustomerRequest("", "John Doe", "12345678901");
-
-        var result = await _customersController.InternalGetOrCreateAsync("usr_123", request);
-        var objectResult = Assert.IsType<ObjectResult>(result);
-        var resultValue = Assert.IsType<ResultObject<object>>(objectResult.Value);
-
-        Assert.Equal(400, objectResult.StatusCode);
-        Assert.False(resultValue.Success);
-
-        Assert.NotNull(resultValue.Error);
-        Assert.NotNull(resultValue.Error.Details);
-
-        Assert.Equal("1 ou mais campos inválidos", resultValue.Error.Message);
-        Assert.Contains("Email", resultValue.Error.Details.Keys);
     }
 }

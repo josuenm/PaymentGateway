@@ -3,9 +3,9 @@ using Catalog.Application.Products.DTOs.Requests;
 using Catalog.Application.Products.DTOs.Responses;
 using Catalog.Application.Products.Services;
 using Catalog.Domain.Commons;
-using Catalog.Domain.Prices.Enums;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Repositories;
+using MassTransit;
 using Moq;
 using Shared.Kernel.Results;
 
@@ -15,11 +15,13 @@ public class ProductServiceTest
 {
     private readonly ProductService _productService;
     private readonly Mock<IProductRepository> _productRepository;
+    private readonly Mock<IPublishEndpoint> _publishEndpoint;
 
     public ProductServiceTest()
     {
         _productRepository = new Mock<IProductRepository>();
-        _productService = new ProductService(_productRepository.Object);
+        _publishEndpoint = new Mock<IPublishEndpoint>();
+        _productService = new ProductService(_productRepository.Object, _publishEndpoint.Object);
     }
 
     [Fact]

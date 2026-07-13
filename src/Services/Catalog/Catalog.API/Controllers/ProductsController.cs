@@ -1,9 +1,11 @@
 using System.Diagnostics;
 using Asp.Versioning;
 using Catalog.Application.Products.DTOs.Requests;
+using Catalog.Application.Products.DTOs.Responses;
 using Catalog.Application.Products.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
 
 namespace Catalog.API.Controllers;
@@ -27,8 +29,8 @@ public class ProductsController : ControllerBase
     }
     
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ResultObject<ProductResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateAsync(
         [FromHeader(Name = "X-User-Id")] string userId, 
         [FromBody] CreateProductRequest? request
@@ -55,8 +57,8 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ResultObject<PagedResponse<ProductResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllPagedAsync(
         [FromHeader(Name = "X-User-Id")] string userId,
         [FromQuery] int page = 1, 
@@ -67,8 +69,8 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ResultObject<ProductResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetByIdAsync([FromHeader(Name = "X-User-Id")] string userId, string id)
     {
         var result = await _productService.GetByIdAsync(userId, id);

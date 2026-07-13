@@ -8,7 +8,6 @@ public record ProductResponse(
     string? Description,
     bool LiveMode,
     bool IsActive,
-    string UserId,
     IEnumerable<PriceResponse> Prices,
     object? Metadata, 
     DateTime CreatedAt, 

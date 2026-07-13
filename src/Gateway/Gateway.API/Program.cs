@@ -84,6 +84,19 @@ var app = builder.Build();
 
 app.UseRouting();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/auth/swagger/v1/swagger.json", "Auth API");
+        options.SwaggerEndpoint("/swagger/customer/swagger/v1/swagger.json", "Customer API");
+        options.SwaggerEndpoint("/swagger/catalog/swagger/v1/swagger.json", "Catalog API");
+        options.SwaggerEndpoint("/swagger/paymentlink/swagger/v1/swagger.json", "PaymentLink API");
+        options.SwaggerEndpoint("/swagger/checkout/swagger/v1/swagger.json", "Checkout API");
+        options.RoutePrefix = "swagger-ui";
+    });
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();

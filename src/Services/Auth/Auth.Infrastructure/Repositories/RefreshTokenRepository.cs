@@ -22,18 +22,9 @@ INSERT INTO RefreshTokens (Id, Token, UserId, IsRevoked, ExpiresAt, CreatedAt)
 VALUES (@Id, @Token, @UserId, @IsRevoked, @ExpiresAt, @CreatedAt)
 ";
         
-        try
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                await connection.ExecuteAsync(sql, refreshToken);
-            }
+        using var connection = _context.CreateConnection();
+        await connection.ExecuteAsync(sql, refreshToken);
             
-            return refreshToken;
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        return refreshToken;
     }
 }

@@ -1,5 +1,6 @@
 using Catalog.Application.Products.DTOs.Responses;
 using Catalog.Application.Products.DTOs.Requests;
+using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
 
 namespace Catalog.Application.Products.Interfaces;

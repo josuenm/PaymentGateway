@@ -54,24 +54,6 @@ public class PaymentService : IPaymentService
         );
     }
 
-    public async Task<Result<PixPaymentResponse>> GetPixPaymentByIdAsync(string paymentId)
-    {
-        var payment = await _paymentTransactionRepository.GetByIdAsync(paymentId);
-
-        if (payment == null)
-            return Result<PixPaymentResponse>.NotFound($"Pagamento não encontrado para o id {paymentId}");
-
-        var chargeResponse = JsonSerializer.Deserialize<PixAcquirerResponse>(payment.ChargeResponse);
-        
-        return Result<PixPaymentResponse>.Ok(new PixPaymentResponse(
-            chargeResponse!.QrCodeData, 
-            payment.Id, 
-            payment.Amount,
-            payment.Currency, 
-            payment.Status
-        ));
-    }
-
     public async Task<Result<bool>> ConfirmSandboxPaymentAsync(string paymentId)
     {
         var payment = await _paymentTransactionRepository.GetByIdAsync(paymentId);

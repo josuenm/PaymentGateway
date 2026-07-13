@@ -25,6 +25,27 @@ public class PaymentLinkItem
         UpdatedAt = null;
     }
     
+    public PaymentLinkItem(
+        string id, 
+        string priceId, 
+        string userId, 
+        string paymentLinkId, 
+        int quantity, 
+        bool liveMode,
+        DateTime createdAt,
+        DateTime updatedAt
+    )
+    {
+        Id = id;
+        UserId = userId;
+        PaymentLinkId = paymentLinkId;
+        PriceId = priceId;
+        Quantity = quantity;
+        LiveMode = liveMode;
+        CreatedAt = createdAt;
+        UpdatedAt = updatedAt;
+    }
+    
     private PaymentLinkItem()
     {}
 }

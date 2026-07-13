@@ -7,6 +7,7 @@ using Catalog.Application.Products.Interfaces;
 using Catalog.Application.Products.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
 
 namespace Catalog.Test.Controllers;
@@ -65,7 +66,6 @@ public class ProductControllerTest
             request.Description, 
             false, 
             true, 
-            "usr_123", 
             new List<PriceResponse>(),
             null, 
             DateTime.UtcNow, 
@@ -123,7 +123,6 @@ public class ProductControllerTest
             null, 
             false, 
             true, 
-            userId, 
             new List<PriceResponse>(),
             null, 
             DateTime.UtcNow, 
@@ -148,7 +147,6 @@ public class ProductControllerTest
         Assert.Equal(productResponse.Name, resultValue.Data.Name);
         Assert.Equal(productResponse.Description, resultValue.Data.Description);
         Assert.Equal(productResponse.IsActive, resultValue.Data.IsActive);
-        Assert.Equal(productResponse.UserId, resultValue.Data.UserId);
         Assert.Equal(productResponse.CreatedAt, resultValue.Data.CreatedAt);
         Assert.Equal(productResponse.UpdatedAt, resultValue.Data.UpdatedAt);
     }

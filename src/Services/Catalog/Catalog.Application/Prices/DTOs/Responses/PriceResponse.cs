@@ -10,7 +10,6 @@ public record PriceResponse(
     bool LiveMode, 
     bool IsActive,
     string ProductId, 
-    string UserId,
     PriceFrequency Frequency, 
     PriceCycle? Cycle,
     DateTime CreatedAt, 

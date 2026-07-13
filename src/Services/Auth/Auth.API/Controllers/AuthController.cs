@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Asp.Versioning;
 using Auth.Application.Auth.DTOs.Requests;
+using Auth.Application.Auth.DTOs.Responses;
 using Auth.Application.Auth.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -30,9 +31,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ResultObject<AuthenticationResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
     {
         var validationResult = await _loginRequestValidator.ValidateAsync(request);
@@ -56,8 +57,8 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ResultObject<AuthenticationResponse>), StatusCodes.Status201Created)]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request)
     {
         var validationResult = await _registerRequestValidator.ValidateAsync(request);

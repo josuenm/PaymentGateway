@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Catalog.Domain.Prices.Enums;
 
-public enum PriceCycle : byte
+public enum PriceCycle
 {
     Daily = 0,
     Weekly = 1,

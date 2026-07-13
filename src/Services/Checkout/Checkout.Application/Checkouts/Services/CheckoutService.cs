@@ -2,10 +2,15 @@ using Checkout.Application.Checkouts.Abstractions;
 using Checkout.Application.Checkouts.DTOs.Requests;
 using Checkout.Application.Checkouts.DTOs.Responses;
 using Checkout.Application.Checkouts.Interfaces;
+using Checkout.Application.CustomerReadModels.Messaging.Commands;
+using Checkout.Application.CustomerReadModels.Interfaces;
+using Checkout.Application.PaymentLinkReadModels.Interfaces;
+using Checkout.Application.ProductReadModels.Interfaces;
 using Checkout.Domain.Checkouts.Entities;
 using Checkout.Domain.Checkouts.Enums;
 using Checkout.Domain.Checkouts.Repositories;
-using Checkout.Infrastructure.Http.Interfaces;
+using Checkout.Domain.CustomerReadModels.Entities;
+using MassTransit;
 using Shared.Kernel.Results;
 
 namespace Checkout.Application.Checkouts.Services;
@@ -13,25 +18,33 @@ namespace Checkout.Application.Checkouts.Services;
 public class CheckoutService : ICheckoutService
 {
     private readonly ICheckoutSessionRepository _checkoutSessionRepository;
-    private readonly ICustomerApiClient _customerApiClient;
-    private readonly IPaymentLinkApiClient _paymentLinkApiClient;
+    private readonly ICustomerReadModelService _customerReadModelService;
+    private readonly IPaymentLinkReadModelService _paymentLinkReadModelService;
+    private readonly IPriceReadModelService _priceReadModelService;
+    
+    private readonly IPublishEndpoint _publishEndpoint;
+    
     private readonly IPaymentApiClient _paymentApiClient;
-    private readonly IPriceApiClient _priceApiClient;
 
     public CheckoutService(
-        ICheckoutSessionRepository checkoutSessionRepository, 
-        ICustomerApiClient customerApiClient,
-        IPaymentLinkApiClient paymentLinkApiClient, 
-        IPaymentApiClient paymentApiClient,
-        IPriceApiClient priceApiClient
+        ICheckoutSessionRepository checkoutSessionRepository,
+        ICustomerReadModelService customerReadModelService,
+        IPaymentLinkReadModelService paymentLinkReadModelService,
+        IPriceReadModelService priceReadModelService,
+        
+        IPublishEndpoint publishEndpoint,
+        
+        IPaymentApiClient paymentApiClient
     )
     {
         _checkoutSessionRepository = checkoutSessionRepository;
+        _customerReadModelService = customerReadModelService;
+        _paymentLinkReadModelService = paymentLinkReadModelService;
+        _priceReadModelService = priceReadModelService;
         
-        _customerApiClient = customerApiClient;
-        _paymentLinkApiClient = paymentLinkApiClient;
+        _publishEndpoint = publishEndpoint;
+        
         _paymentApiClient = paymentApiClient;
-        _priceApiClient = priceApiClient;
     }
     
     public async Task<Result<PaymentResponse>> CreatePaymentAsync(CreatePaymentRequest paymentRequest)
@@ -51,7 +64,7 @@ public class CheckoutService : ICheckoutService
 
     public async Task<Result<PaymentResponse>> CreatePixPaymentAsync(CreatePaymentRequest paymentRequest)
     {
-        var paymentLink = await _paymentLinkApiClient.GetAsync(paymentRequest.SourceId);
+        var paymentLink = await _paymentLinkReadModelService.GetByIdAsync(paymentRequest.SourceId);
         
         if (paymentLink == null)
             return Result<PaymentResponse>.InternalServerError("Erro ao obter o link de pagamento");
@@ -69,38 +82,59 @@ public class CheckoutService : ICheckoutService
 
         
         var userId = paymentLink.UserId;
-        var customer = await _customerApiClient.GetOrCreateAsync(userId, customerPayload);
+        var customer = await _customerReadModelService.GetByEmailAndUserIdAsync(userId, customerPayload.Email);
 
-        
         if (customer == null)
-            return Result<PaymentResponse>.InternalServerError("Erro ao obter o cliente");
-        
-        
-        
+        {
+            customer = new CustomerReadModel(
+                customerPayload.Email,
+                customerPayload.Name,
+                customerPayload.TaxId, 
+                userId, 
+                false
+            );
+            await _customerReadModelService.CreateAsync(customer);
+            await _publishEndpoint.Publish(new CreateCustomerCommand(
+                customer.Id,
+                customer.Email,
+                customer.Name,
+                customer.TaxId, 
+                userId,
+                false
+            ));
+        }
+
+        if (customer.TaxId == null || customer.Name == null)
+        {
+            customer.SetName(customerPayload.Name);
+            customer.SetTaxId(customerPayload.TaxId);
+            await _customerReadModelService.UpdateAsync(customer);
+            await _publishEndpoint.Publish(new UpdateCustomerCommand(
+                customer.Id,
+                customer.Email,
+                customer.Name,
+                customer.TaxId, 
+                userId,
+                false
+            ));
+        }
         
         var priceIdList = paymentLink
             .Items
             .ToList()
             .Select(p => p.PriceId)
             .ToList();
-            
-        var prices = await _priceApiClient.GetManyByIdAsync(priceIdList);
-            
-        if (prices == null)
-            return Result<PaymentResponse>.InternalServerError("Erro ao obter itens");
 
-        
+        var prices = await _priceReadModelService.GetManyByIdAsync(priceIdList);
+
         var total = prices.Sum(p => p.Amount);
-        
-        
-        
         
         var paymentPayload = new CreatePixPaymentHttpRequest(
             new CustomerPixPaymentHttpRequest(
                 customer.Id, 
                 customer.Email, 
-                customer.Name, 
-                customer.TaxId
+                customer.Name!, 
+                customer.TaxId!
             ), 
             paymentRequest.Method, 
             total, 
@@ -112,8 +146,6 @@ public class CheckoutService : ICheckoutService
         
         if (payment == null)
             return Result<PaymentResponse>.InternalServerError("Erro ao gerar cobrança");
-        
-        
         
         var paymentId = payment.PaymentId;
         var qrCodeData = payment.QrCodeData;
@@ -143,7 +175,7 @@ public class CheckoutService : ICheckoutService
     {
         try
         {
-            var paymentLink = await _paymentLinkApiClient.GetAsync(paymentLinkId);
+            var paymentLink = await _paymentLinkReadModelService.GetByIdAsync(paymentLinkId);
 
             if (paymentLink == null)
                 return Result<PaymentLinkDetailsResponse>.InternalServerError("Erro ao obter o link de pagamento");
@@ -163,10 +195,7 @@ public class CheckoutService : ICheckoutService
                 .Select(p => p.PriceId)
                 .ToList();
             
-            var prices = await _priceApiClient.GetManyByIdAsync(priceIdList);
-            
-            if (prices == null)
-                return Result<PaymentLinkDetailsResponse>.InternalServerError("Erro ao obter itens");
+            var prices = await _priceReadModelService.GetManyByIdAsync(priceIdList);
             
             var items = prices.Select(p =>
             {
@@ -209,7 +238,7 @@ public class CheckoutService : ICheckoutService
     {
         try
         {
-            var paymentLink = await _paymentLinkApiClient.GetAsync(paymentLinkId);
+            var paymentLink = await _paymentLinkReadModelService.GetByIdAsync(paymentLinkId);
 
             if (paymentLink == null)
                 return Result<bool>.InternalServerError("Erro ao obter o link de pagamento");

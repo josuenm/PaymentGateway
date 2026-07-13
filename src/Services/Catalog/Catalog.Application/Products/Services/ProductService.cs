@@ -2,20 +2,25 @@ using Catalog.Application.Prices.DTOs.Responses;
 using Catalog.Application.Products.DTOs.Requests;
 using Catalog.Application.Products.DTOs.Responses;
 using Catalog.Application.Products.Interfaces;
+using Catalog.Application.Products.Messaging.Commands;
 using Catalog.Domain.Prices.Entities;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Repositories;
+using MassTransit;
+using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
 
 namespace Catalog.Application.Products.Services;
 
 public class ProductService : IProductService
 {
+    private readonly IPublishEndpoint _publishEndpoint;
     private readonly IProductRepository _productRepository;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, IPublishEndpoint publishEndpoint)
     {
         _productRepository = productRepository;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Result<ProductResponse>> CreateAsync(string userId, CreateProductRequest request)
@@ -46,13 +51,29 @@ public class ProductService : IProductService
         
         await _productRepository.CreateAsync(product);
 
+        await _publishEndpoint.Publish(new ProductCreatedEvent(
+            product.Id,
+            product.Prices != null && product.Prices.Any() ? product.Prices.Select(price => new PriceCreatedEvent(
+                price.Id,
+                price.Name,
+                price.Frequency,
+                price.Cycle,
+                price.ProductId,
+                price.Amount,
+                price.Currency, 
+                price.UserId,
+                price.LiveMode
+            )) : new List<PriceCreatedEvent>(),
+            product.UserId,
+            product.LiveMode
+        ));
+
         return Result<ProductResponse>.Created(new ProductResponse(
             product.Id, 
             product.Name, 
             product.Description, 
             product.LiveMode, 
             product.IsActive, 
-            product.UserId, 
             product.Prices != null && product.Prices.Any() ? product.Prices.Select(item => new PriceResponse(
                 item.Id, 
                 item.Name, 
@@ -61,7 +82,6 @@ public class ProductService : IProductService
                 item.LiveMode,
                 item.IsActive,
                 item.ProductId, 
-                item.UserId,
                 item.Frequency, 
                 item.Cycle,
                 item.CreatedAt, 
@@ -86,7 +106,6 @@ public class ProductService : IProductService
             product.Description, 
             product.LiveMode, 
             product.IsActive, 
-            product.UserId, 
             product.Prices != null && product.Prices.Any() ? product.Prices.Select(item => new PriceResponse(
                 item.Id, 
                 item.Name, 
@@ -95,7 +114,6 @@ public class ProductService : IProductService
                 item.LiveMode,
                 item.IsActive,
                 item.ProductId, 
-                item.UserId,
                 item.Frequency, 
                 item.Cycle,
                 item.CreatedAt, 
@@ -117,7 +135,6 @@ public class ProductService : IProductService
             item.Description,
             item.LiveMode,
             item.IsActive,
-            item.UserId, 
             item.Prices != null && item.Prices.Any() ? item.Prices.Select(price => new PriceResponse(
                 price.Id, 
                 price.Name, 
@@ -126,7 +143,6 @@ public class ProductService : IProductService
                 price.LiveMode,
                 price.IsActive,
                 price.ProductId, 
-                price.UserId,
                 price.Frequency, 
                 price.Cycle,
                 price.CreatedAt, 
