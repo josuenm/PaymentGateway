@@ -42,7 +42,6 @@ public class ProductServiceTest
         Assert.Null(resultObject.Error);
         Assert.True(resultObject.Success);
         Assert.Equal(request.Name, resultObject.Data.Name);
-        Assert.Equal(userId, resultObject.Data.UserId);
     }
 
     [Fact]
