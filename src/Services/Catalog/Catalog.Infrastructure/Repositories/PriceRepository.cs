@@ -64,11 +64,17 @@ WHERE pri.Id IN @IdList
 INSERT INTO Prices (Id, Name, Amount, Frequency, Cycle, Currency, ProductId, UserId, LiveMode, IsActive, CreatedAt)
 VALUES (@Id, @Name, @Amount, @Frequency, @Cycle, @Currency, @ProductId, @UserId, @LiveMode, @IsActive, @CreatedAt)
 ";
-        
-        var connection = transaction?.Connection ?? _context.CreateConnection();
-            
-        await connection.ExecuteAsync(sql, prices, transaction);
-            
+
+        if (transaction != null)
+        {
+            await transaction.Connection!.ExecuteAsync(sql, prices, transaction);
+        }
+        else
+        {
+            var connection = _context.CreateConnection();
+            await connection.ExecuteAsync(sql, prices, transaction);
+        }
+
         return prices;
     }
     

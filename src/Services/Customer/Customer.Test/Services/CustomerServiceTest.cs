@@ -14,17 +14,15 @@ public class CustomerServiceTest
 {
     private readonly CustomerService _customerService;
     private readonly Mock<ICustomerRepository> _customerRepository;
-    private readonly Mock<ISendEndpointProvider> _sendEndpointProviderMock;
-    private readonly Mock<ISendEndpoint> _sendEndpointMock;
+    private readonly Mock<IPublishEndpoint> _sendEndpointMock;
 
     public CustomerServiceTest()
     {
-        _sendEndpointProviderMock = new Mock<ISendEndpointProvider>();
-        _sendEndpointMock = new Mock<ISendEndpoint>();
         _customerRepository = new Mock<ICustomerRepository>();
+        _sendEndpointMock = new Mock<IPublishEndpoint>();
         _customerService = new CustomerService(
             _customerRepository.Object, 
-            _sendEndpointProviderMock.Object
+            _sendEndpointMock.Object
         );
     }
 
@@ -38,10 +36,6 @@ public class CustomerServiceTest
             .Setup(method => method.CreateAsync(It.IsAny<CustomerEntity>()))
             .ReturnsAsync((CustomerEntity customer) => customer);
         
-        _sendEndpointProviderMock
-            .Setup(provider => provider.GetSendEndpoint(It.IsAny<Uri>()))
-            .ReturnsAsync(_sendEndpointMock.Object);
-
         var result = await _customerService.CreateCustomerAsync(userId, request);
         var resultObject = Assert.IsType<Result<CustomerResponse>>(result);
 

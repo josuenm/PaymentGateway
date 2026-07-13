@@ -28,6 +28,7 @@ public class PaymentsController : ControllerBase
 
     [HttpPost("internal/pix")]
     [InternalAuthorize]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> CreatePixPaymentAsync([FromBody] CreatePixPaymentRequest request)
     {
         var validationResult = await _createPixPaymentRequestValidator.ValidateAsync(request);
@@ -50,17 +51,11 @@ public class PaymentsController : ControllerBase
         return Result<object>.Created(result).ToActionResult();
     }
 
-    [HttpGet("internal/{id}")]
-    [InternalAuthorize]
-    public async Task<IActionResult> GetPaymentByIdAsync(string id)
-    {
-        return (await _paymentService.GetPixPaymentByIdAsync(id)).ToActionResult();
-    }
-
     [HttpGet("internal/confirm/sandbox/{id}")]
     [InternalAuthorize]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> ConfirmSandboxPayment(string id)
     {
-        return (await _paymentService.GetPixPaymentByIdAsync(id)).ToActionResult();
+        return (await _paymentService.ConfirmSandboxPaymentAsync(id)).ToActionResult();
     }
 }

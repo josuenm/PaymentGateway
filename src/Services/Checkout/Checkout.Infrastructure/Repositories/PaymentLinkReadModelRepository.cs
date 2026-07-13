@@ -1,5 +1,6 @@
 using Checkout.Domain.PaymentLinkReadModels.Entities;
 using Checkout.Domain.PaymentLinkReadModels.Repositories;
+using Checkout.Infrastructure.Repositories.QueryResults;
 using Dapper;
 using Shared.Infrastructure.Contexts;
 
@@ -23,13 +24,13 @@ public class PaymentLinkReadModelRepository : IPaymentLinkReadModelRepository
     {
         const string sql = 
 @"
-INSERT INTO PaymentLinkReadModel (Id, IsActive, UserId, LiveMode) VALUES (@Id, @IsActive, @UserId, @LiveMode)
+INSERT INTO PaymentLinkReadModels (Id, IsActive, UserId, LiveMode) VALUES (@Id, @IsActive, @UserId, @LiveMode)
 ";
 
         using var connection = _context.CreateConnection();
         var transaction = connection.BeginTransaction();
         
-        await connection.ExecuteAsync(sql, readModel);
+        await connection.ExecuteAsync(sql, readModel, transaction);
 
         if (readModel.Items.Any())
         {
@@ -41,10 +42,57 @@ INSERT INTO PaymentLinkReadModel (Id, IsActive, UserId, LiveMode) VALUES (@Id, @
 
     public async Task<PaymentLinkReadModel?> GetByIdAsync(string id, bool includeItems = false)
     {
-        const string sql = "SELECT * FROM PaymentLinkReadModel WHERE Id = @Id";
+        const string sql = 
+@"
+SELECT 
+    pl.Id,
+    pl.IsActive,
+    pl.UserId,
+    pl.LiveMode,
+    
+    pli.Id AS PaymentLinkItemId,
+    pli.PriceId,
+    pli.Quantity,
+    pli.PaymentLinkId,
+    pli.LiveMode AS PaymentLinkItemLiveMode
+FROM PaymentLinkReadModels AS pl
+LEFT JOIN PaymentLinkItemReadModels AS pli ON pl.Id = pli.PaymentLinkId
+WHERE pl.Id = @Id
+";
         object parameters = new { Id = id };
+        var paymentLinkDictionary = new Dictionary<string, PaymentLinkReadModel>();
         
         using var connection = _context.CreateConnection();
-        return await connection.QueryFirstOrDefaultAsync<PaymentLinkReadModel>(sql, parameters);
+        var result = await connection.QueryAsync<PaymentLinkReadModel, PaymentLinkItemQueryResult?, PaymentLinkReadModel>(
+            sql,
+            (paymentLink, item) =>
+            {
+                if (!paymentLinkDictionary.TryGetValue(paymentLink.Id, out var existingPaymentLink))
+                {
+                    existingPaymentLink = paymentLink;
+                    existingPaymentLink.SetItems(new List<PaymentLinkItemReadModel>());
+                    paymentLinkDictionary.Add(paymentLink.Id, existingPaymentLink);
+                }
+
+                if (item != null)
+                {
+                    var itemList = existingPaymentLink.Items.ToList();
+                    itemList.Add(new PaymentLinkItemReadModel(
+                        item.PaymentLinkItemId, 
+                        item.PaymentLinkId, 
+                        item.PriceId, 
+                        item.Quantity, 
+                        item.PaymentLinkItemLiveMode
+                    ));
+                    existingPaymentLink.SetItems(itemList);
+                }
+                
+                return paymentLink;
+            },
+            parameters,
+            splitOn: "PaymentLinkItemId"
+        );
+        
+        return result.FirstOrDefault();
     }
 }

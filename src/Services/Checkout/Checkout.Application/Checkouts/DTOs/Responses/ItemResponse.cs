@@ -1,3 +1,5 @@
+using Checkout.Domain.ProductReadModels.Enums;
+
 namespace Checkout.Application.Checkouts.DTOs.Responses;
 
 public record ItemResponse(
@@ -7,6 +9,6 @@ public record ItemResponse(
     int Quantity,
     string Currency,
     long Amount,
-    string Frequency, 
-    string? Cycle 
+    PriceReadModelFrequency Frequency, 
+    PriceReadModelCycle? Cycle 
 );

@@ -4,7 +4,7 @@ using MassTransit;
 
 namespace Customer.Infrastructure.Messaging.Consumers;
 
-public class CustomerCreationConsumer : IConsumer<CustomerCreatedEvent>
+public class CustomerCreationConsumer : IConsumer<CreateCustomerCommand>
 {
     private readonly ICustomerService _customerService;
     
@@ -13,7 +13,7 @@ public class CustomerCreationConsumer : IConsumer<CustomerCreatedEvent>
         _customerService = customerService;
     }
 
-    public async Task Consume(ConsumeContext<CustomerCreatedEvent> context)
+    public async Task Consume(ConsumeContext<CreateCustomerCommand> context)
     {
         await _customerService.CreateFromExternalRequestAsync(context.Message);
     }

@@ -1,8 +1,7 @@
 using System.Text.Json;
 using Asp.Versioning;
-using Catalog.Application.Prices.Interfaces;
-using Catalog.Application.Prices.Services;
 using Catalog.Application.Products.Interfaces;
+using Catalog.Application.Products.Messaging.Commands;
 using Catalog.Application.Products.Services;
 using Catalog.Application.Products.Validators;
 using Catalog.Domain.Prices.Repositories;
@@ -26,7 +25,12 @@ builder.Services.AddMassTransit(x =>
             h.Password("guest");
         });
         
-        cfg.ConfigureEndpoints(context);
+        cfg.UseRawJsonSerializer(RawSerializerOptions.AnyMessageType);
+        
+        cfg.Message<ProductCreatedEvent>(m =>
+        {
+            m.SetEntityName("catalog.product-created");
+        });
     });
 });
 
@@ -58,20 +62,23 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssembly(typeof(CreateProductRequestValidator).Assembly);
 builder.Services.AddSingleton<DapperContext>();
-builder.Services.AddScoped<IPriceService, PriceService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IPriceRepository, PriceRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
 }
-
-if (!app.Environment.IsDevelopment())
+else
 {
     app.UseHttpsRedirection();
 }

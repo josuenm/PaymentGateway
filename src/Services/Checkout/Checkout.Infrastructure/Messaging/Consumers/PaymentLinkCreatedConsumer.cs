@@ -1,4 +1,4 @@
-using Checkout.Application.PaymentLinkReadModels.Events.Events;
+using Checkout.Application.PaymentLinkReadModels.Messaging.Events;
 using Checkout.Application.PaymentLinkReadModels.Interfaces;
 using MassTransit;
 

@@ -42,15 +42,22 @@ builder.Services.AddValidatorsFromAssembly(typeof(CreatePixPaymentRequestValidat
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 

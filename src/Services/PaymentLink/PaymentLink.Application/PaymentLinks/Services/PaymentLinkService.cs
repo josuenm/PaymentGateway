@@ -1,61 +1,49 @@
-using System.Text.Json;
 using MassTransit;
 using PaymentLink.Application.PaymentLinks.DTOs.Requests;
 using PaymentLink.Application.PaymentLinks.DTOs.Responses;
 using PaymentLink.Application.PaymentLinks.Interfaces;
 using PaymentLink.Application.PaymentLinks.Messaging.Commands;
+using PaymentLink.Application.ProductReadModels.Interfaces;
 using PaymentLink.Domain.Entities;
 using PaymentLink.Domain.PaymentLinks.Repositories;
+using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
 
 namespace PaymentLink.Application.PaymentLinks.Services;
 
 public class PaymentLinkService : IPaymentLinkService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IPriceReadModelService _priceReadModelService;
     private readonly IPaymentLinkRepository _paymentLinkRepository;
     private readonly IPublishEndpoint _publishEndpoint;
 
     public PaymentLinkService(
-        IHttpClientFactory httpClientFactory,
+        IPriceReadModelService priceReadModelService,
         IPaymentLinkRepository paymentLinkRepository, 
         IPublishEndpoint publishEndpoint
     )
     {
-        _httpClientFactory = httpClientFactory;
+        _priceReadModelService = priceReadModelService;
         _paymentLinkRepository = paymentLinkRepository;
         _publishEndpoint = publishEndpoint;
     }
     
     public async Task<Result<PaymentLinkResponse>> CreateAsync(CreatePaymentLink request, string userId)
     {
-        var pricesIdList = request.Items.Select(item => item.PriceId).Distinct().ToList();
-        var priceList = string.Join(",", pricesIdList);
+        var priceIdList = request.Items.Select(item => item.PriceId).Distinct().ToList();
         
-        var pricesClient = _httpClientFactory.CreateClient("CatalogClient");
-        var pricesResponse = await pricesClient.GetAsync($"/api/v1/prices/internal?idList={priceList}");
-        var pricesJson = await pricesResponse.Content.ReadAsStringAsync();
-        var pricesResult = JsonSerializer.Deserialize<ResultObject<IEnumerable<PriceResponse>>>(
-            pricesJson, 
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-        );
+        var prices = await _priceReadModelService.GetManyByIdAsync(priceIdList);
         
-        if (pricesResult == null)
-            return Result<PaymentLinkResponse>.InternalServerError("Erro ao obter os preços");
-            
-        if (!pricesResult.Success || pricesResult.Data == null)
-            return Result<PaymentLinkResponse>.InternalServerError("Erro ao obter os preços");
-        
-        var pricesFound = pricesResult.Data.ToList();
-        
-        if (pricesIdList.Count != pricesFound.Count())
+        if (priceIdList.Count != prices.Count())
         {
             return Result<PaymentLinkResponse>.BadRequest("Algum preço é inválido");
         }
 
+        var priceList = prices.ToList();
+
         foreach (var price in request.Items)
         {
-            var item = pricesFound.FirstOrDefault(item => item.Id == price.PriceId);
+            var item = priceList.FirstOrDefault(item => item.Id == price.PriceId);
 
             if (item == null)
             {
@@ -115,22 +103,32 @@ public class PaymentLinkService : IPaymentLinkService
         ));
     }
 
-    public async Task<Result<InternalPaymentLinkResponse>> InternalGetByIdAsync(string id)
+    public async Task<Result<PagedResponse<PaymentLinkResponse>>> GetAllPagedAsync(string userId, int page, int limit)
     {
-        var paymentLink = await _paymentLinkRepository.GetByIdAsync(id, true);
+        var result = await _paymentLinkRepository.GetAllPagedAsync(
+            userId,
+            page,
+            limit
+        );
 
-        if (paymentLink == null)
-        {
-            return Result<InternalPaymentLinkResponse>.NotFound("Link de pagamento não encontrado");
-        }
-
-        return Result<InternalPaymentLinkResponse>.Ok(new InternalPaymentLinkResponse(
-            paymentLink.Items.Any()
-                ? paymentLink.Items.Select(item => new InternalPaymentLinkItemResponse(item.PriceId, item.Quantity))
-                : new List<InternalPaymentLinkItemResponse>(), 
-            paymentLink.IsActive, 
-            paymentLink.LiveMode,
-            paymentLink.UserId
+        var items = result.Items.Select(pl => new PaymentLinkResponse(
+            pl.Id, 
+            pl.LiveMode, 
+            pl.IsActive, 
+            pl.Methods,
+            pl.Items.Any() 
+                ? pl.Items.Select(item => new PaymentLinkItemResponse(item.Id, item.PriceId, item.Quantity)) 
+                : new List<PaymentLinkItemResponse>(), 
+            pl.CreatedAt,
+            pl.UpdatedAt
+        ));
+        
+        return Result<PagedResponse<PaymentLinkResponse>>.Ok(new PagedResponse<PaymentLinkResponse>(
+            items,
+            result.Total,
+            page,
+            (int)Math.Ceiling((double)result.Total / limit),
+            limit
         ));
     }
 }

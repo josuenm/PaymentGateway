@@ -5,11 +5,11 @@ using Checkout.Application.Checkouts.Interfaces;
 using Checkout.Application.CustomerReadModels.Messaging.Commands;
 using Checkout.Application.CustomerReadModels.Interfaces;
 using Checkout.Application.PaymentLinkReadModels.Interfaces;
+using Checkout.Application.ProductReadModels.Interfaces;
 using Checkout.Domain.Checkouts.Entities;
 using Checkout.Domain.Checkouts.Enums;
 using Checkout.Domain.Checkouts.Repositories;
 using Checkout.Domain.CustomerReadModels.Entities;
-using Checkout.Infrastructure.Http.Interfaces;
 using MassTransit;
 using Shared.Kernel.Results;
 
@@ -20,31 +20,31 @@ public class CheckoutService : ICheckoutService
     private readonly ICheckoutSessionRepository _checkoutSessionRepository;
     private readonly ICustomerReadModelService _customerReadModelService;
     private readonly IPaymentLinkReadModelService _paymentLinkReadModelService;
+    private readonly IPriceReadModelService _priceReadModelService;
     
     private readonly IPublishEndpoint _publishEndpoint;
     
     private readonly IPaymentApiClient _paymentApiClient;
-    private readonly IPriceApiClient _priceApiClient;
 
     public CheckoutService(
         ICheckoutSessionRepository checkoutSessionRepository,
         ICustomerReadModelService customerReadModelService,
         IPaymentLinkReadModelService paymentLinkReadModelService,
+        IPriceReadModelService priceReadModelService,
         
         IPublishEndpoint publishEndpoint,
         
-        IPaymentApiClient paymentApiClient,
-        IPriceApiClient priceApiClient
+        IPaymentApiClient paymentApiClient
     )
     {
         _checkoutSessionRepository = checkoutSessionRepository;
         _customerReadModelService = customerReadModelService;
         _paymentLinkReadModelService = paymentLinkReadModelService;
+        _priceReadModelService = priceReadModelService;
         
         _publishEndpoint = publishEndpoint;
         
         _paymentApiClient = paymentApiClient;
-        _priceApiClient = priceApiClient;
     }
     
     public async Task<Result<PaymentResponse>> CreatePaymentAsync(CreatePaymentRequest paymentRequest)
@@ -119,32 +119,22 @@ public class CheckoutService : ICheckoutService
             ));
         }
         
-        
-        
-        
         var priceIdList = paymentLink
             .Items
             .ToList()
             .Select(p => p.PriceId)
             .ToList();
-            
-        var prices = await _priceApiClient.GetManyByIdAsync(priceIdList);
-            
-        if (prices == null)
-            return Result<PaymentResponse>.InternalServerError("Erro ao obter itens");
 
-        
+        var prices = await _priceReadModelService.GetManyByIdAsync(priceIdList);
+
         var total = prices.Sum(p => p.Amount);
-        
-        
-        
         
         var paymentPayload = new CreatePixPaymentHttpRequest(
             new CustomerPixPaymentHttpRequest(
                 customer.Id, 
                 customer.Email, 
-                customer.Name, 
-                customer.TaxId
+                customer.Name!, 
+                customer.TaxId!
             ), 
             paymentRequest.Method, 
             total, 
@@ -156,8 +146,6 @@ public class CheckoutService : ICheckoutService
         
         if (payment == null)
             return Result<PaymentResponse>.InternalServerError("Erro ao gerar cobrança");
-        
-        
         
         var paymentId = payment.PaymentId;
         var qrCodeData = payment.QrCodeData;
@@ -207,10 +195,7 @@ public class CheckoutService : ICheckoutService
                 .Select(p => p.PriceId)
                 .ToList();
             
-            var prices = await _priceApiClient.GetManyByIdAsync(priceIdList);
-            
-            if (prices == null)
-                return Result<PaymentLinkDetailsResponse>.InternalServerError("Erro ao obter itens");
+            var prices = await _priceReadModelService.GetManyByIdAsync(priceIdList);
             
             var items = prices.Select(p =>
             {

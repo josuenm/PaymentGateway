@@ -46,56 +46,6 @@ public class PaymentServiceTest
     }
 
     [Fact]
-    public async Task GetPixPaymentByIdAsync_WithInvalidId_ReturnsNotFound()
-    {
-        var paymentId = "payt_123";
-
-        _paymentTransactionRepository
-            .Setup(method => method.GetByIdAsync(paymentId))
-            .ReturnsAsync((PaymentTransactionEntity?)null);
-
-        var result = await _paymentService.GetPixPaymentByIdAsync(paymentId);
-        var resultObject = Assert.IsType<Result<PixPaymentResponse>>(result);
-
-        Assert.Equal(404, resultObject.StatusCode);
-        Assert.Null(resultObject.Data);
-        Assert.NotNull(resultObject.Error);
-        Assert.False(resultObject.Success);
-    }
-
-    [Fact]
-    public async Task GetPixPaymentByIdAsync_WithValidId_ReturnsOk()
-    {
-        var chargeResponse = new PixAcquirerResponse("charge_123", "QR_CODE_DATA");
-        var payment = new PaymentTransactionEntity(
-            "payt_123",
-            "cust_123",
-            PaymentMethod.Pix,
-            PaymentStatus.Pending,
-            1000,
-            "BRL",
-            "usr_123",
-            chargeResponse.Id,
-            JsonSerializer.Serialize(chargeResponse),
-            true
-        );
-
-        _paymentTransactionRepository
-            .Setup(method => method.GetByIdAsync(payment.Id))
-            .ReturnsAsync(payment);
-
-        var result = await _paymentService.GetPixPaymentByIdAsync(payment.Id);
-        var resultObject = Assert.IsType<Result<PixPaymentResponse>>(result);
-
-        Assert.Equal(200, resultObject.StatusCode);
-        Assert.NotNull(resultObject.Data);
-        Assert.Null(resultObject.Error);
-        Assert.True(resultObject.Success);
-        Assert.Equal(chargeResponse.QrCodeData, resultObject.Data.QrCodeData);
-        Assert.Equal(payment.Id, resultObject.Data.PaymentId);
-    }
-
-    [Fact]
     public async Task ConfirmSandboxPaymentAsync_WithInvalidId_ReturnsNotFound()
     {
         var paymentId = "payt_123";

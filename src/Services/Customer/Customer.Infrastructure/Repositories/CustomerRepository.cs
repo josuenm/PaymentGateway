@@ -93,7 +93,7 @@ FETCH NEXT @Limit ROWS ONLY;
         
         var totalCount = 0;
             
-        var result = await connection.QueryAsync<CustomerEntity, int, CustomerEntity>(
+        var result = (await connection.QueryAsync<CustomerEntity, int, CustomerEntity>(
             sql,
             (customer, total) =>
             {
@@ -102,9 +102,9 @@ FETCH NEXT @Limit ROWS ONLY;
             },
             parameters,
             splitOn: "Total"
-        );
+        )).ToList();
 
-        if (!result.Any())
+        if (result.Count < 1)
             return new PagedSearchResult<CustomerEntity>(new List<CustomerEntity>(), 0);
 
         var customers = result.ToList();

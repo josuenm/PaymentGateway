@@ -27,17 +27,19 @@ builder.Services.AddMassTransit(x =>
             host.Password("guest");
         });
         
-        cfg.Message<CustomerCreatedCommand>(m =>
+        cfg.UseRawJsonSerializer(RawSerializerOptions.AnyMessageType);
+        
+        cfg.Message<CustomerCreatedEvent>(m =>
         {
             m.SetEntityName("customer.customer-created");
         });
 
 
-        cfg.Message<CustomerCreatedEvent>(m =>
+        cfg.Message<CreateCustomerCommand>(m =>
         {
             m.SetEntityName("customer.customer-creation-requested");
         });
-        cfg.Message<CustomerUpdatedEvent>(m =>
+        cfg.Message<UpdateCustomerCommand>(m =>
         {
             m.SetEntityName("customer.customer-update-requested");
         });
@@ -80,15 +82,19 @@ builder.Services.AddValidatorsFromAssembly(typeof(CreateCustomerRequestValidator
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
 }
-
-if (!app.Environment.IsDevelopment())
+else
 {
     app.UseHttpsRedirection();
 }

@@ -1,9 +1,11 @@
 using System.Diagnostics;
 using Asp.Versioning;
 using Customer.Application.Customers.DTOs.Requests;
+using Customer.Application.Customers.DTOs.Responses;
 using Customer.Application.Customers.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTOs.Responses;
 using Shared.Infrastructure.Attributes;
 using Shared.Kernel.Results;
 
@@ -28,8 +30,8 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ResultObject<CustomerResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateAsync(
         [FromHeader(Name = "X-User-Id")] string userId, 
         [FromBody] CreateCustomerRequest request
@@ -56,8 +58,8 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ResultObject<CustomerResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromHeader(Name = "X-User-Id")] string userId, string id)
     {
         var response = await _customerService.GetCustomerByIdAsync(userId, id);
@@ -65,7 +67,7 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultObject<PagedResponse<CustomerResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllPagedAsync(
         [FromHeader(Name = "X-User-Id")] string userId, 
         [FromQuery] int page = 1, 
@@ -73,32 +75,5 @@ public class CustomersController : ControllerBase
     )
     {
         return Ok(await _customerService.GetCustomersPagedAsync(userId, page, limit));
-    }
-
-    [HttpPost("internal/get-or-create")]
-    [InternalAuthorize]
-    public async Task<IActionResult> InternalGetOrCreateAsync(
-        [FromHeader(Name = "X-User-Id")] string userId, 
-        [FromBody] CreateCustomerRequest request
-    )
-    {
-        var validationResult = await _createCustomerRequestValidator.ValidateAsync(request);
-
-        if (!validationResult.IsValid)
-        {
-            var errors = validationResult.Errors
-                .GroupBy(x => x.PropertyName)
-                .ToDictionary(
-                    g => g.Key, 
-                    g => g.Select(e => e.ErrorMessage)
-                );
-            
-            return Result<object>
-                .BadRequest("1 ou mais campos inválidos", errors, Activity.Current?.Id)
-                .ToActionResult();
-        }
-
-        var result = await _customerService.InternalGetOrCreateAsync(userId, request);
-        return result.ToActionResult();
     }
 }

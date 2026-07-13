@@ -44,6 +44,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
+
 var app = builder.Build();
 
 app.UseDeveloperExceptionPage();
@@ -51,10 +57,8 @@ app.UseDeveloperExceptionPage();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
 }
-
-if (!app.Environment.IsDevelopment())
+else
 {
     app.UseHttpsRedirection();
 }

@@ -87,32 +87,4 @@ public class PaymentsControllerTest
         var data = Assert.IsType<PixPaymentResponse>(resultValue.Data);
         Assert.Equal(paymentResponse.PaymentId, data.PaymentId);
     }
-
-    [Fact]
-    public async Task GetPaymentByIdAsync_WithValidId_ReturnsOk()
-    {
-        var paymentId = "payt_123";
-        var paymentResponse = new PixPaymentResponse(
-            "QR_CODE_DATA",
-            paymentId,
-            1000,
-            "BRL",
-            PaymentStatus.Pending
-        );
-
-        _paymentServiceMock
-            .Setup(service => service.GetPixPaymentByIdAsync(paymentId))
-            .ReturnsAsync(Result<PixPaymentResponse>.Ok(paymentResponse));
-
-        var result = await _paymentsController.GetPaymentByIdAsync(paymentId);
-        var objectResult = Assert.IsType<ObjectResult>(result);
-        var resultValue = Assert.IsType<ResultObject<PixPaymentResponse>>(objectResult.Value);
-
-        Assert.Equal(200, objectResult.StatusCode);
-        Assert.True(resultValue.Success);
-
-        Assert.NotNull(resultValue.Data);
-        Assert.Null(resultValue.Error);
-        Assert.Equal(paymentId, resultValue.Data.PaymentId);
-    }
 }

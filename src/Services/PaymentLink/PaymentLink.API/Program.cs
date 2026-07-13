@@ -6,8 +6,12 @@ using PaymentLink.Application.PaymentLinks.Interfaces;
 using PaymentLink.Application.PaymentLinks.Messaging.Commands;
 using PaymentLink.Application.PaymentLinks.Services;
 using PaymentLink.Application.PaymentLinks.Validators;
+using PaymentLink.Application.ProductReadModels.Interfaces;
+using PaymentLink.Application.ProductReadModels.Messaging.Events;
+using PaymentLink.Application.ProductReadModels.Services;
 using PaymentLink.Domain.PaymentLinks.Repositories;
-using PaymentLink.Infrastructure.Data.TypeHandlers;
+using PaymentLink.Domain.ProductReadModels.Repositories;
+using PaymentLink.Infrastructure.Messaging.Consumers;
 using PaymentLink.Infrastructure.Repositories;
 using Shared.Infrastructure.Configurations;
 using Shared.Infrastructure.Contexts;
@@ -16,6 +20,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<ProductCreatedConsumer>();
+    
     x.UsingRabbitMq((ctx, cfg) =>
     {
         cfg.Host("localhost", "/", host =>
@@ -24,9 +30,23 @@ builder.Services.AddMassTransit(x =>
             host.Password("guest");
         });
         
+        cfg.UseRawJsonSerializer(RawSerializerOptions.AnyMessageType);
+        
         cfg.Message<PaymentLinkCreatedCommand>(m =>
         {
             m.SetEntityName("paymentlink.paymentlink-created");
+        });
+        
+        
+        cfg.Message<ProductCreatedEvent>(m =>
+        {
+            m.SetEntityName("catalog.product-created");
+        });
+        
+        
+        cfg.ReceiveEndpoint("paymentlink-product-created", e =>
+        {
+            e.ConfigureConsumer<ProductCreatedConsumer>(ctx);
         });
     });
 });
@@ -55,24 +75,28 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
-Dapper.SqlMapper.AddTypeHandler(new PaymentLinkMethodsHandler());
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddValidatorsFromAssembly(typeof(CreatePaymentLinkValidator).Assembly);
+
 builder.Services.AddScoped<IPaymentLinkService, PaymentLinkService>();
 builder.Services.AddScoped<IPaymentLinkRepository, PaymentLinkRepository>();
 builder.Services.AddScoped<IPaymentLinkItemRepository, PaymentLinkItemRepository>();
-builder.Services.AddHttpClient("CatalogClient", client =>
+builder.Services.AddScoped<IProductReadModelService, ProductReadModelService>();
+builder.Services.AddScoped<IPriceReadModelService, PriceReadModelService>();
+builder.Services.AddScoped<IProductReadModelRepository, ProductReadModelRepository>();
+builder.Services.AddScoped<IPriceReadModelRepository, PriceReadModelRepository>();
+
+if (builder.Environment.IsDevelopment())
 {
-    client.BaseAddress = new Uri("http://localhost:5001");
-    client.DefaultRequestHeaders.Add("X-Internal-Key", builder.Configuration["InternalSettings:ApiKey"]);
-});
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
 }
 else
 {

@@ -1,9 +1,7 @@
-using System.Text.Json.Serialization;
-
 namespace Catalog.Domain.Prices.Enums;
 
-public enum PriceFrequency : byte
+public enum PriceFrequency
 {
-    OneTime = 1, 
-    Recurring = 2
+    OneTime = 0, 
+    Recurring = 1
 }

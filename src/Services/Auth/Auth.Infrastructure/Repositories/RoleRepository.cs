@@ -18,16 +18,7 @@ public class RoleRepository : IRoleRepository
     {
         const string sql = "SELECT * FROM Roles WHERE Name = @Name";
         
-        try
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QueryFirstOrDefaultAsync<Role>(sql, new { Name = name });
-            }
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        using var connection = _context.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<Role>(sql, new { Name = name });
     }
 }

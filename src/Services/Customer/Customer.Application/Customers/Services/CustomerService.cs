@@ -6,6 +6,7 @@ using Customer.Application.Customers.Messaging.Commands;
 using Customer.Domain.Customers.Entities;
 using Customer.Domain.Customers.Repositories;
 using MassTransit;
+using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
 
 namespace Customer.Application.Customers.Services;
@@ -49,11 +50,13 @@ public class CustomerService : ICustomerService
         
         await _customerRepository.CreateAsync(newCustomer);
         
-        await _publishEndpoint.Publish(new CustomerCreatedCommand(
+        await _publishEndpoint.Publish(new CustomerCreatedEvent(
             newCustomer.Id, 
-            newCustomer.Name, 
             newCustomer.Email, 
-            newCustomer.TaxId
+            newCustomer.Name, 
+            newCustomer.TaxId,
+            newCustomer.UserId,
+            newCustomer.LiveMode
         ));
         
         return Result<CustomerResponse>.Ok(new CustomerResponse(
@@ -65,7 +68,7 @@ public class CustomerService : ICustomerService
         ));
     }
 
-    public async Task CreateFromExternalRequestAsync(CustomerCreatedEvent @event)
+    public async Task CreateFromExternalRequestAsync(CreateCustomerCommand @event)
     {
         var customer = CustomerEntity.CreateWithId(
             @event.Id, 
@@ -79,15 +82,15 @@ public class CustomerService : ICustomerService
         await _customerRepository.CreateAsync(customer);
     }
 
-    public async Task UpdateFromExternalRequestAsync(CustomerUpdatedEvent @event)
+    public async Task UpdateFromExternalRequestAsync(UpdateCustomerCommand command)
     {
         var customer = CustomerEntity.CreateWithId(
-            @event.Id, 
-            @event.Email, 
-            @event.Name, 
-            @event.TaxId, 
-            @event.UserId, 
-            @event.LiveMode
+            command.Id, 
+            command.Email, 
+            command.Name, 
+            command.TaxId, 
+            command.UserId, 
+            command.LiveMode
         );
         
         await _customerRepository.UpdateAsync(customer);

@@ -1,9 +1,9 @@
-namespace Customer.Application.Customers.Messaging.Events;
+namespace Customer.Application.Customers.Messaging.Commands;
 
 public record CustomerCreatedEvent(
-    string Id,
-    string? Name,
-    string Email,
+    string Id, 
+    string Email, 
+    string? Name, 
     string? TaxId,
     string UserId,
     bool LiveMode

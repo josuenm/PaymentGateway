@@ -7,6 +7,5 @@ namespace Payment.Application.Payments.Interfaces;
 public interface IPaymentService
 {
     public Task<PixPaymentResponse> CreatePixPaymentAsync(CreatePixPaymentRequest request);
-    public Task<Result<PixPaymentResponse>> GetPixPaymentByIdAsync(string paymentId);
     public Task<Result<bool>> ConfirmSandboxPaymentAsync(string paymentId);
 }

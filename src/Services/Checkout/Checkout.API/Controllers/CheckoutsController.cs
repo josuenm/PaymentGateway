@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Asp.Versioning;
 using Checkout.Application.Checkouts.DTOs.Requests;
+using Checkout.Application.Checkouts.DTOs.Responses;
 using Checkout.Application.Checkouts.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,8 @@ public class CheckoutsController : ControllerBase
     }
 
     [HttpPost("payment/pix")]
+    [ProducesResponseType(typeof(ResultObject<PaymentResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ResultObject<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreatePaymentAsync([FromBody] CreatePaymentRequest request)
     {
         var validationResult = await _createPaymentRequestValidator.ValidateAsync(request);
@@ -49,6 +52,7 @@ public class CheckoutsController : ControllerBase
     }
     
     [HttpGet("payment/sandbox/confirm/{paymentId}")]
+    [ProducesResponseType(typeof(ResultObject<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ConfirmSandboxPaymentAsync(string paymentId)
     {
         var result = await _checkoutService.ConfirmSandboxPaymentAsync(paymentId);
@@ -56,6 +60,7 @@ public class CheckoutsController : ControllerBase
     }
     
     [HttpGet("paymentlink/{paymentLinkId}/items")]
+    [ProducesResponseType(typeof(ResultObject<PaymentLinkDetailsResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetItemsDetailsAsync(string paymentLinkId)
     {
         var result = await _checkoutService.GetPaymentLinkItemsDetailsAsync(paymentLinkId);

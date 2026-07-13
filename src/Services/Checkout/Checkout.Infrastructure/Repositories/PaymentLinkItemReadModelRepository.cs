@@ -22,11 +22,18 @@ public class PaymentLinkItemReadModelRepository : IPaymentLinkItemReadModelRepos
     {
         const string sql = 
 @"
-INSERT INTO PaymentLinkItemReadModel (Id, PaymentLinkId, PriceId, Quantity, LiveMode)
+INSERT INTO PaymentLinkItemReadModels (Id, PaymentLinkId, PriceId, Quantity, LiveMode)
 VALUES (@Id, @PaymentLinkId, @PriceId, @Quantity, @LiveMode);
 ";
 
-        using var connection = transaction?.Connection ?? _context.CreateConnection();
-        await connection.ExecuteAsync(sql, readModel, transaction);
+        if (transaction != null)
+        {
+            await transaction.Connection!.ExecuteAsync(sql, readModel, transaction);
+        }
+        else
+        {
+            using var connection = _context.CreateConnection();
+            await connection.ExecuteAsync(sql, readModel, transaction);
+        }
     }
 }
