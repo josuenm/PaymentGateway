@@ -20,7 +20,6 @@ using Checkout.Domain.CustomerReadModels.Repositories;
 using Checkout.Domain.PaymentLinkReadModels.Repositories;
 using Checkout.Domain.ProductReadModels.Repositories;
 using Checkout.Infrastructure.Http.Clients;
-using Checkout.Infrastructure.Http.Interfaces;
 using Checkout.Infrastructure.Messaging.Consumers;
 using Checkout.Infrastructure.Repositories;
 using FluentValidation;
@@ -119,9 +118,6 @@ builder.Services.AddValidatorsFromAssembly(typeof(CreatePaymentRequestValidator)
 
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<ICheckoutSessionRepository, CheckoutSessionRepository>();
-builder.Services.AddScoped<ICustomerApiClient, CustomerApiClient>();
-builder.Services.AddScoped<IPaymentLinkApiClient, PaymentLinkApiClient>();
-builder.Services.AddScoped<IPriceApiClient, PriceApiClient>();
 builder.Services.AddScoped<IPaymentApiClient, PaymentApiClient>();
 builder.Services.AddScoped<ICustomerReadModelService, CustomerReadModelService>();
 builder.Services.AddScoped<ICustomerReadModelRepository, CustomerReadModelRepository>();

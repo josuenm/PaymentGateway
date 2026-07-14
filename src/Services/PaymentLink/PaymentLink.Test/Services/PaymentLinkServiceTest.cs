@@ -6,7 +6,7 @@ using PaymentLink.Application.PaymentLinks.Interfaces;
 using PaymentLink.Application.PaymentLinks.Messaging.Commands;
 using PaymentLink.Application.PaymentLinks.Services;
 using PaymentLink.Application.ProductReadModels.Interfaces;
-using PaymentLink.Domain.Entities;
+using PaymentLink.Domain.PaymentLinks.Entities;
 using PaymentLink.Domain.PaymentLinks.Enums;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using PaymentLink.Domain.ProductReadModels.Entities;

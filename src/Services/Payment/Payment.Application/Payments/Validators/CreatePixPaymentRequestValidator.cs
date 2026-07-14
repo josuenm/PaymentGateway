@@ -3,7 +3,7 @@ using Payment.Application.Payments.DTOs.Requests;
 
 namespace Payment.Application.Payments.Validators;
 
-public class CreatePixPaymentRequestValidator : AbstractValidator<CreatePixPaymentRequest>
+public class CreatePixPaymentRequestValidator : AbstractValidator<CreatePaymentRequest>
 {
     public CreatePixPaymentRequestValidator()
     {

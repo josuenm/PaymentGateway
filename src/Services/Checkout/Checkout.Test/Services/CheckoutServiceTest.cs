@@ -48,7 +48,7 @@ public class CheckoutServiceTest
     }
 
     [Fact]
-    public async Task CreatePixPaymentAsync_WithNullPaymentLink_ReturnsInternalServerError()
+    public async Task CreatePaymentAsync_WithNullPaymentLink_ReturnsInternalServerError()
     {
         var request = new CreatePaymentRequest(
             PaymentMethod.Pix,
@@ -60,7 +60,7 @@ public class CheckoutServiceTest
             .Setup(m => m.GetByIdAsync(request.SourceId))
             .ReturnsAsync((PaymentLinkReadModel?)null);
 
-        var result = await _checkoutService.CreatePixPaymentAsync(request);
+        var result = await _checkoutService.CreatePaymentAsync(request);
 
         Assert.Equal(500, result.StatusCode);
         Assert.False(result.Success);
@@ -68,7 +68,7 @@ public class CheckoutServiceTest
     }
 
     [Fact]
-    public async Task CreatePixPaymentAsync_WithInactivePaymentLink_ReturnsInternalServerError()
+    public async Task CreatePaymentAsync_WithInactivePaymentLink_ReturnsInternalServerError()
     {
         var request = new CreatePaymentRequest(
             PaymentMethod.Pix,
@@ -82,7 +82,7 @@ public class CheckoutServiceTest
             .Setup(m => m.GetByIdAsync(request.SourceId))
             .ReturnsAsync(inactivePaymentLink);
 
-        var result = await _checkoutService.CreatePixPaymentAsync(request);
+        var result = await _checkoutService.CreatePaymentAsync(request);
 
         Assert.Equal(500, result.StatusCode);
         Assert.False(result.Success);
@@ -90,7 +90,7 @@ public class CheckoutServiceTest
     }
 
     [Fact]
-    public async Task CreatePixPaymentAsync_WithNewCustomer_PublishesCreateCustomerCommandAndReturnsCreated()
+    public async Task CreatePaymentAsync_WithNewCustomer_PublishesCreateCustomerCommandAndReturnsCreated()
     {
         var userId = "usr_123";
         var priceId = "pri_123";
@@ -132,8 +132,8 @@ public class CheckoutServiceTest
             });
 
         _paymentApiClient
-            .Setup(m => m.CreatePixPaymentAsync(It.IsAny<CreatePixPaymentHttpRequest>()))
-            .ReturnsAsync(new PixPaymentHttpResponse(
+            .Setup(m => m.CreatePaymentAsync(It.IsAny<CreatePaymentHttpRequest>()))
+            .ReturnsAsync(new PaymentHttpResponse(
                 "QR_CODE_DATA", 
                 "payt_123", 
                 10000, 
@@ -145,7 +145,7 @@ public class CheckoutServiceTest
             .Setup(m => m.CreateAsync(It.IsAny<CheckoutSession>()))
             .ReturnsAsync((CheckoutSession session) => session);
 
-        var result = await _checkoutService.CreatePixPaymentAsync(request);
+        var result = await _checkoutService.CreatePaymentAsync(request);
 
         Assert.Equal(201, result.StatusCode);
         Assert.NotNull(result.Data);
@@ -172,7 +172,7 @@ public class CheckoutServiceTest
     }
 
     [Fact]
-    public async Task CreatePixPaymentAsync_WithExistingCustomerMissingTaxId_PublishesUpdateCustomerCommand()
+    public async Task CreatePaymentAsync_WithExistingCustomerMissingTaxId_PublishesUpdateCustomerCommand()
     {
         var userId = "usr_123";
         var priceId = "pri_123";
@@ -206,8 +206,8 @@ public class CheckoutServiceTest
             });
 
         _paymentApiClient
-            .Setup(m => m.CreatePixPaymentAsync(It.IsAny<CreatePixPaymentHttpRequest>()))
-            .ReturnsAsync(new PixPaymentHttpResponse(
+            .Setup(m => m.CreatePaymentAsync(It.IsAny<CreatePaymentHttpRequest>()))
+            .ReturnsAsync(new PaymentHttpResponse(
                 "QR_CODE_DATA", 
                 "payt_123", 
                 10000, 
@@ -219,7 +219,7 @@ public class CheckoutServiceTest
             .Setup(m => m.CreateAsync(It.IsAny<CheckoutSession>()))
             .ReturnsAsync((CheckoutSession session) => session);
 
-        var result = await _checkoutService.CreatePixPaymentAsync(request);
+        var result = await _checkoutService.CreatePaymentAsync(request);
 
         Assert.Equal(201, result.StatusCode);
 
@@ -237,7 +237,7 @@ public class CheckoutServiceTest
     }
 
     [Fact]
-    public async Task CreatePixPaymentAsync_WhenPaymentGatewayFails_ReturnsInternalServerError()
+    public async Task CreatePaymentAsync_WhenPaymentGatewayFails_ReturnsInternalServerError()
     {
         var userId = "usr_123";
         var priceId = "pri_123";
@@ -269,10 +269,10 @@ public class CheckoutServiceTest
             });
 
         _paymentApiClient
-            .Setup(m => m.CreatePixPaymentAsync(It.IsAny<CreatePixPaymentHttpRequest>()))
-            .ReturnsAsync((PixPaymentHttpResponse?)null);
+            .Setup(m => m.CreatePaymentAsync(It.IsAny<CreatePaymentHttpRequest>()))
+            .ReturnsAsync((PaymentHttpResponse?)null);
 
-        var result = await _checkoutService.CreatePixPaymentAsync(request);
+        var result = await _checkoutService.CreatePaymentAsync(request);
 
         Assert.Equal(500, result.StatusCode);
         Assert.False(result.Success);

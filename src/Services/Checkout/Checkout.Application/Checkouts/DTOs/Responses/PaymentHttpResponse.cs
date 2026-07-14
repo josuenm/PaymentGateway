@@ -1,7 +1,7 @@
 namespace Checkout.Application.Checkouts.DTOs.Responses;
 
-public record PixPaymentHttpResponse (
-    string QrCodeData, 
+public record PaymentHttpResponse (
+    string? QrCodeData, 
     string PaymentId, 
     long Amount, 
     string Currency,

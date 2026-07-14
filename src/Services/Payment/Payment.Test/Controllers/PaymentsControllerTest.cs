@@ -27,7 +27,7 @@ public class PaymentsControllerTest
     [Fact]
     public async Task CreatePixPaymentAsync_WithInvalidData_ReturnsBadRequest()
     {
-        var request = new CreatePixPaymentRequest(
+        var request = new CreatePaymentRequest(
             new CustomerRequest("", "", "", ""),
             PaymentMethod.Pix,
             0,
@@ -36,7 +36,7 @@ public class PaymentsControllerTest
             true
         );
 
-        var result = await _paymentsController.CreatePixPaymentAsync(request);
+        var result = await _paymentsController.CreatePaymentAsync(request);
         var objectResult = Assert.IsType<ObjectResult>(result);
         var resultValue = Assert.IsType<ResultObject<object>>(objectResult.Value);
 
@@ -53,7 +53,7 @@ public class PaymentsControllerTest
     [Fact]
     public async Task CreatePixPaymentAsync_WithValidData_ReturnsCreated()
     {
-        var request = new CreatePixPaymentRequest(
+        var request = new CreatePaymentRequest(
             new CustomerRequest("cust_123", "example@example.com", "John Doe", "12345678901"),
             PaymentMethod.Pix,
             1000,
@@ -62,19 +62,19 @@ public class PaymentsControllerTest
             true
         );
 
-        var paymentResponse = new PixPaymentResponse(
-            "QR_CODE_DATA",
+        var paymentResponse = new PaymentResponse(
             "payt_123",
             request.Amount,
             request.Currency,
-            PaymentStatus.Pending
+            PaymentStatus.Pending,
+            "QR_CODE_DATA"
         );
 
         _paymentServiceMock
-            .Setup(service => service.CreatePixPaymentAsync(request))
+            .Setup(service => service.CreatePaymentAsync(request))
             .ReturnsAsync(paymentResponse);
 
-        var result = await _paymentsController.CreatePixPaymentAsync(request);
+        var result = await _paymentsController.CreatePaymentAsync(request);
         var objectResult = Assert.IsType<ObjectResult>(result);
         var resultValue = Assert.IsType<ResultObject<object>>(objectResult.Value);
 
@@ -84,7 +84,7 @@ public class PaymentsControllerTest
         Assert.NotNull(resultValue.Data);
         Assert.Null(resultValue.Error);
 
-        var data = Assert.IsType<PixPaymentResponse>(resultValue.Data);
+        var data = Assert.IsType<PaymentResponse>(resultValue.Data);
         Assert.Equal(paymentResponse.PaymentId, data.PaymentId);
     }
 }

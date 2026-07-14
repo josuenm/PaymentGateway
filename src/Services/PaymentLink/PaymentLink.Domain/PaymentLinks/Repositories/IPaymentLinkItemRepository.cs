@@ -1,5 +1,5 @@
 using System.Data;
-using PaymentLink.Domain.Entities;
+using PaymentLink.Domain.PaymentLinks.Entities;
 
 namespace PaymentLink.Domain.PaymentLinks.Repositories;
 

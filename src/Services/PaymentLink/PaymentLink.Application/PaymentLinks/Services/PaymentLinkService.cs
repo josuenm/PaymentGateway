@@ -4,7 +4,8 @@ using PaymentLink.Application.PaymentLinks.DTOs.Responses;
 using PaymentLink.Application.PaymentLinks.Interfaces;
 using PaymentLink.Application.PaymentLinks.Messaging.Commands;
 using PaymentLink.Application.ProductReadModels.Interfaces;
-using PaymentLink.Domain.Entities;
+using PaymentLink.Domain.PaymentLinks.Entities;
+using PaymentLink.Domain.PaymentLinks.Enums;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using Shared.DTOs.Responses;
 using Shared.Kernel.Results;
@@ -58,7 +59,7 @@ public class PaymentLinkService : IPaymentLinkService
 
         var paymentLink = new PaymentLinkEntity(
             userId, 
-            request.Methods, 
+            (IReadOnlyCollection<PaymentLinkMethods>)request.Methods, 
             true, 
             true
         );

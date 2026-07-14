@@ -16,7 +16,7 @@ public class PaymentApiClient : IPaymentApiClient
         _httpClient = httpClient;
     }
     
-    public async Task<PixPaymentHttpResponse?> CreatePixPaymentAsync(CreatePixPaymentHttpRequest pixPayment)
+    public async Task<PaymentHttpResponse?> CreatePaymentAsync(CreatePaymentHttpRequest pixPayment)
     {
         var json = JsonSerializer.Serialize(pixPayment);
         
@@ -31,7 +31,7 @@ public class PaymentApiClient : IPaymentApiClient
         var response = await _httpClient.SendAsync(request);
         var responseJson = await response.Content.ReadAsStringAsync();
 
-        var result = JsonSerializer.Deserialize<ResultObject<PixPaymentHttpResponse>>(
+        var result = JsonSerializer.Deserialize<ResultObject<PaymentHttpResponse>>(
             responseJson, 
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
         );

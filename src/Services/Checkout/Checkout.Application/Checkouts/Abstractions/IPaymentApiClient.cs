@@ -5,6 +5,6 @@ namespace Checkout.Application.Checkouts.Abstractions;
 
 public interface IPaymentApiClient
 {
-    public Task<PixPaymentHttpResponse?> CreatePixPaymentAsync(CreatePixPaymentHttpRequest request);
+    public Task<PaymentHttpResponse?> CreatePaymentAsync(CreatePaymentHttpRequest request);
     public Task<bool?> ConfirmSandboxPaymentAsync(string paymentId);
 }

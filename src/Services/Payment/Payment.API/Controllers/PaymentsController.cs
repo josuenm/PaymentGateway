@@ -15,11 +15,11 @@ namespace Payment.API.Controllers;
 public class PaymentsController : ControllerBase
 {
     private readonly IPaymentService _paymentService;
-    private readonly IValidator<CreatePixPaymentRequest> _createPixPaymentRequestValidator;
+    private readonly IValidator<CreatePaymentRequest> _createPixPaymentRequestValidator;
 
     public PaymentsController(
         IPaymentService paymentService, 
-        IValidator<CreatePixPaymentRequest> createPixPaymentRequestValidator
+        IValidator<CreatePaymentRequest> createPixPaymentRequestValidator
     )
     {
         _paymentService = paymentService;
@@ -29,7 +29,7 @@ public class PaymentsController : ControllerBase
     [HttpPost("internal/pix")]
     [InternalAuthorize]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<IActionResult> CreatePixPaymentAsync([FromBody] CreatePixPaymentRequest request)
+    public async Task<IActionResult> CreatePaymentAsync([FromBody] CreatePaymentRequest request)
     {
         var validationResult = await _createPixPaymentRequestValidator.ValidateAsync(request);
 
@@ -47,7 +47,7 @@ public class PaymentsController : ControllerBase
                 .ToActionResult();
         }
         
-        var result = await _paymentService.CreatePixPaymentAsync(request);
+        var result = await _paymentService.CreatePaymentAsync(request);
         return Result<object>.Created(result).ToActionResult();
     }
 

@@ -1,6 +1,6 @@
 using System.Data;
 using Dapper;
-using PaymentLink.Domain.Entities;
+using PaymentLink.Domain.PaymentLinks.Entities;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using Shared.Infrastructure.Contexts;
 

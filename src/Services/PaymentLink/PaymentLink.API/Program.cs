@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Asp.Versioning;
+using Dapper;
 using FluentValidation;
 using MassTransit;
 using PaymentLink.Application.PaymentLinks.Interfaces;
@@ -9,10 +10,12 @@ using PaymentLink.Application.PaymentLinks.Validators;
 using PaymentLink.Application.ProductReadModels.Interfaces;
 using PaymentLink.Application.ProductReadModels.Messaging.Events;
 using PaymentLink.Application.ProductReadModels.Services;
+using PaymentLink.Domain.PaymentLinks.Enums;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using PaymentLink.Domain.ProductReadModels.Repositories;
 using PaymentLink.Infrastructure.Messaging.Consumers;
 using PaymentLink.Infrastructure.Repositories;
+using PaymentLink.Infrastructure.Repositories.TypeHandlers;
 using Shared.Infrastructure.Configurations;
 using Shared.Infrastructure.Contexts;
 
@@ -77,6 +80,7 @@ builder.Services.AddControllers()
     });
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddValidatorsFromAssembly(typeof(CreatePaymentLinkValidator).Assembly);
+SqlMapper.AddTypeHandler(new JsonTypeHandler<IReadOnlyCollection<PaymentLinkMethods>>());
 
 builder.Services.AddScoped<IPaymentLinkService, PaymentLinkService>();
 builder.Services.AddScoped<IPaymentLinkRepository, PaymentLinkRepository>();

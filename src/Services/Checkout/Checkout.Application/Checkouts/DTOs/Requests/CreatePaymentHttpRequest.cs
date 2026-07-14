@@ -2,8 +2,8 @@ using Checkout.Domain.Checkouts.Enums;
 
 namespace Checkout.Application.Checkouts.DTOs.Requests;
 
-public record CreatePixPaymentHttpRequest(
-    CustomerPixPaymentHttpRequest Customer, 
+public record CreatePaymentHttpRequest(
+    CustomerPaymentHttpRequest Customer, 
     PaymentMethod Method,
     long Amount, 
     string Currency,

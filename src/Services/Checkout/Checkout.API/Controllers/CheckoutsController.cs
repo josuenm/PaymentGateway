@@ -47,7 +47,7 @@ public class CheckoutsController : ControllerBase
                 .ToActionResult();
         }
         
-        var result = await _checkoutService.CreatePixPaymentAsync(request);
+        var result = await _checkoutService.CreatePaymentAsync(request);
         return result.ToActionResult();
     }
     

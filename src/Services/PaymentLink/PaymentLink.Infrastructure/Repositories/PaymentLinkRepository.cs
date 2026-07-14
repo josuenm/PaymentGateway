@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Customer.Domain.Commons;
 using Dapper;
-using PaymentLink.Domain.Entities;
+using PaymentLink.Domain.PaymentLinks.Entities;
 using PaymentLink.Domain.PaymentLinks.Repositories;
 using PaymentLink.Infrastructure.Repositories.QueryResults;
 using Shared.Infrastructure.Contexts;

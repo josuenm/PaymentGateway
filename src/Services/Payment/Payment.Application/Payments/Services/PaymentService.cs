@@ -20,37 +20,45 @@ public class PaymentService : IPaymentService
         _paymentTransactionRepository = paymentTransactionRepository;
     }
 
-    public async Task<PixPaymentResponse> CreatePixPaymentAsync(CreatePixPaymentRequest request)
+    public async Task<PaymentResponse> CreatePaymentAsync(CreatePaymentRequest request)
     {
-        var paymentTransactionId = IdGenerator.Generate("payt");
-        var pixQrCodeData = PixMock.Generate(paymentTransactionId);
-        var chargeResponse = new PixAcquirerResponse
-        (
-            Guid.NewGuid().ToString(),
-            pixQrCodeData
-        );
+        var isPixMethod = request.Method == PaymentMethod.Pix;
         
+        var paymentTransactionId = IdGenerator.Generate("payt");
+        var pixQrCodeData = isPixMethod ? PixMock.Generate(paymentTransactionId) : null;
+        
+        AcquireResponse chargeResponse = isPixMethod
+            ? new PixAcquirerResponse(Guid.NewGuid().ToString(), pixQrCodeData!)
+            : new CardAcquireResponse(Guid.NewGuid().ToString());
+        
+        string chargeId = chargeResponse switch
+        {
+            PixAcquirerResponse pix => pix.Id,
+            CardAcquireResponse card => card.Id,
+            _ => throw new InvalidOperationException("Tipo de resposta de cobrança inesperado")
+        };
+
         var paymentTransaction = new PaymentTransactionEntity(
             paymentTransactionId, 
             request.Customer.Id, 
             request.Method, 
-            PaymentStatus.Pending, 
+            isPixMethod ? PaymentStatus.Pending : PaymentStatus.Paid, 
             request.Amount,
             request.Currency,
             request.UserId,
-            chargeResponse.Id, 
+            chargeId, 
             JsonSerializer.Serialize(chargeResponse), 
             true
          );
 
         await _paymentTransactionRepository.CreateAsync(paymentTransaction);
 
-        return new PixPaymentResponse(
-            pixQrCodeData, 
+        return new PaymentResponse(
             paymentTransaction.Id, 
             paymentTransaction.Amount,
             paymentTransaction.Currency,
-            paymentTransaction.Status
+            paymentTransaction.Status,
+            pixQrCodeData 
         );
     }
 

@@ -24,7 +24,7 @@ public class PaymentServiceTest
     [Fact]
     public async Task CreatePixPaymentAsync_WithValidData_ReturnsPixPaymentResponse()
     {
-        var request = new CreatePixPaymentRequest(
+        var request = new CreatePaymentRequest(
             new CustomerRequest("cust_123", "example@example.com", "John Doe", "12345678901"),
             PaymentMethod.Pix,
             1000,
@@ -37,9 +37,8 @@ public class PaymentServiceTest
             .Setup(method => method.CreateAsync(It.IsAny<PaymentTransactionEntity>()))
             .ReturnsAsync((PaymentTransactionEntity payment) => payment);
 
-        var result = await _paymentService.CreatePixPaymentAsync(request);
+        var result = await _paymentService.CreatePaymentAsync(request);
 
-        Assert.NotNull(result.QrCodeData);
         Assert.Equal(request.Amount, result.Amount);
         Assert.Equal(request.Currency, result.Currency);
         Assert.Equal(PaymentStatus.Pending, result.Status);

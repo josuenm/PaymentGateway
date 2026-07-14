@@ -1,6 +1,6 @@
 using Shared.Kernel.Utils;
 
-namespace PaymentLink.Domain.Entities;
+namespace PaymentLink.Domain.PaymentLinks.Entities;
 
 public class PaymentLinkItem
 {

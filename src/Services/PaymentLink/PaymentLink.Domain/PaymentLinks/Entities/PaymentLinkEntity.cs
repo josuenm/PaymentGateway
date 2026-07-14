@@ -1,20 +1,20 @@
 using PaymentLink.Domain.PaymentLinks.Enums;
 using Shared.Kernel.Utils;
 
-namespace PaymentLink.Domain.Entities;
+namespace PaymentLink.Domain.PaymentLinks.Entities;
 
 public class PaymentLinkEntity
 {
     public string Id { get; private set; }
     public string UserId { get; private set; }
-    public IEnumerable<PaymentLinkMethods> Methods { get; private set; }
+    public IReadOnlyCollection<PaymentLinkMethods> Methods { get; private set; }
     public IEnumerable<PaymentLinkItem> Items { get; private set; }
     public bool LiveMode { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    public PaymentLinkEntity(string userId, IEnumerable<PaymentLinkMethods> methods, bool liveMode, bool isActive)
+    public PaymentLinkEntity(string userId, IReadOnlyCollection<PaymentLinkMethods> methods, bool liveMode, bool isActive)
     {
         Id = IdGenerator.Generate("plink");
         UserId = userId;

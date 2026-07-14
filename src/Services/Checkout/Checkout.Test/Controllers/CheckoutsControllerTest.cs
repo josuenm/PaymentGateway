@@ -62,13 +62,14 @@ public class CheckoutsControllerTest
         var paymentResponse = new PaymentResponse(
             "cs_123",
             "payt_123",
+            "PENDING",
+            10000,
             "QR_CODE_DATA",
-            13000,
-            1000
+            3600
         );
 
         _checkoutServiceMock
-            .Setup(service => service.CreatePixPaymentAsync(request))
+            .Setup(service => service.CreatePaymentAsync(request))
             .ReturnsAsync(Result<PaymentResponse>.Created(paymentResponse));
 
         var result = await _checkoutsController.CreatePaymentAsync(request);
